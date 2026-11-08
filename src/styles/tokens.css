@@ -1,0 +1,63 @@
+/* tokens.css: the whole visual system in one place.
+   A workspace, not a webpage: five flat tones, one accent, no borders between regions.
+   Regions are separated by tone; only floating layers get elevation. */
+:root{
+  /* surfaces, darkest to lightest */
+  --c0:#1b1b1b;   /* canvas, behind the page */
+  --c1:#262626;   /* chrome: menu bar, tab strips, status bar */
+  --c2:#303030;   /* panels and docks */
+  --c3:#3a3a3a;   /* controls, resting */
+  --c4:#474747;   /* controls, hover */
+  --in:#1d1d1e;   /* wells and inputs */
+  --line:#3f3f3f; /* only where a control needs an edge (focus, swatch ring) */
+
+  /* text: every value checked against every surface for 4.5:1 or better */
+  --ink:#dcdcdc;      /* 9.9:1 on c2 */
+  --ink-hi:#f4f4f4;   /* selection and titles */
+  --muted:#a4a4a6;    /* 4.6:1 on c3, 5.3:1 on c2 */
+
+  /* one accent, three jobs */
+  --acc:#2f6fd0;      /* fills: white on it is 4.9:1 */
+  --acc-hi:#3f7de0;   /* hover on a fill */
+  --acc-ink:#8ab6ff;  /* accent as text and as focus ring: 6.4:1 on c2 */
+
+  --ok:#5cc98a;
+  --warn:#e0a458;
+  --dng:#e2685f;
+
+  /* four roles that are not palette colours, only surfaces with one job each */
+  --on-acc:#fff;          /* text and icons drawn on an accent fill */
+  --paper:#fff;           /* the comic page itself, the only pure white in the app */
+  --in-edge:#27272a;      /* the hairline inside a well; never used as a divider */
+  --in-edge-hi:#333335;   /* the same hairline on hover */
+  --scrim:rgba(17,17,18,.78); /* the flat wash behind a focused overlay */
+  --chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a4a4a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); /* Lucide chevron-down, the muted ink */
+  --chevron-size:14px;
+
+  --f:'Inter var',Inter,system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,Cantarell,'Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* type scale: 12 is the floor for anything a person must read (skill 5.16 §4) */
+  --fs-label:12px;   /* field labels, status text, list meta */
+  --fs-ui:12.5px;    /* buttons, tabs, controls */
+  --fs-body:13px;    /* dock copy, hints */
+  --fs-lead:14px;    /* empty-state lead */
+
+  /* geometry */
+  --r:3px; --r2:6px; --r3:10px;
+  --row:26px; --ctl:24px;
+  --bar-h:30px; --tab-h:28px;
+
+  /* elevation, for floating layers only */
+  --e1:0 1px 2px rgba(0,0,0,.45);
+  --e2:0 2px 6px rgba(0,0,0,.4),0 12px 28px -10px rgba(0,0,0,.6);
+  --e3:0 10px 48px -12px rgba(0,0,0,.75),0 2px 8px rgba(0,0,0,.5);
+
+  /* motion: see motion.css. Fast in, calm out; nothing bounces twice. */
+  --t-press:90ms; --t-fast:120ms; --t-ui:170ms; --t-slow:260ms; --t-page:340ms;
+  --e-out:cubic-bezier(.16,1,.3,1);      /* entrances */
+  --e-in:cubic-bezier(.4,0,1,1);         /* exits */
+  --e-move:cubic-bezier(.22,.61,.36,1);  /* things that slide */
+
+  color-scheme:dark;
+}

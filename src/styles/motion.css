@@ -1,0 +1,80 @@
+/* motion.css: everything that moves, in one place.
+ *
+ * Rules of the house:
+ *   1. Press is instant (90 ms, on pointer-down), release is calm. A control answers the finger,
+ *      not the click.
+ *   2. Entrances are longer than exits (170/260 in, 120 out). Things arrive deliberately and
+ *      leave without ceremony.
+ *   3. Only transform and opacity animate. Nothing here can trigger layout.
+ *   4. A reveal is anchored to what caused it: menus grow from their button, panels rise from
+ *      the tab that opened them, the page turns where the page is.
+ *   5. Motion is decoration. Every state is legible with it switched off.
+ */
+
+/* ── 1. press ─────────────────────────────────────────────────────────── */
+@media (pointer:fine){
+  button,.btn,.pg,.chip,.seg button,.tpl,.castlist button,.row,.pitem{
+    transition:transform var(--t-press) var(--e-out),background var(--t-fast) linear,color var(--t-fast) linear,opacity var(--t-fast) linear;
+  }
+  button:active:not(:disabled),.tpl:active{transform:scale(.97)}
+  .pg:active,.chip:active,.seg button:active,.row:active,.pitem:active{transform:scale(.98)}
+  .rail button:active{transform:scale(.93)}
+}
+
+/* ── 2. floating layers ───────────────────────────────────────────────── */
+@keyframes menu-in{from{opacity:0;transform:scale(.97) translateY(-3px)}to{opacity:1;transform:none}}
+@keyframes menu-out{from{opacity:1;transform:none}to{opacity:0;transform:scale(.985) translateY(-2px)}}
+.dd.open,.menu.open{animation:menu-in var(--t-ui) var(--e-out) both;transform-origin:top left}
+.dd.closing,.menu.closing{animation:menu-out var(--t-fast) var(--e-in) both;transform-origin:top left}
+
+/* ── 3. panels and docks ──────────────────────────────────────────────── */
+@keyframes panel-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes card-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.reveal{animation:panel-in var(--t-ui) var(--e-out) both}
+.reveal>*{animation:card-in var(--t-ui) var(--e-out) both}
+.reveal>*:nth-child(2){animation-delay:18ms}
+.reveal>*:nth-child(3){animation-delay:34ms}
+.reveal>*:nth-child(4){animation-delay:48ms}
+.reveal>*:nth-child(n+5){animation-delay:60ms}
+
+/* ── 4. the board ─────────────────────────────────────────────────────── */
+@keyframes sheet-turn{from{opacity:0;transform:translateY(6px) scale(.996)}to{opacity:1;transform:none}}
+.sheet.turn{animation:sheet-turn var(--t-page) var(--e-out) both}
+@keyframes ring-in{from{opacity:0}to{opacity:1}}
+.sheet.sel-new .selring{animation:ring-in var(--t-ui) var(--e-out) both}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+.bump{animation:bump var(--t-ui) var(--e-out)}
+
+/* ── 5. transient messages ────────────────────────────────────────────── */
+#toast{opacity:0;transform:translate(-50%,8px);transition:opacity var(--t-ui) var(--e-out),transform var(--t-ui) var(--e-out)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@keyframes dot{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-1px)}}
+
+/* ── 6. first run ─────────────────────────────────────────────────────── */
+@keyframes veil-in{from{opacity:0}to{opacity:1}}
+@keyframes card-rise{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes tpl-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.welcome{animation:veil-in var(--t-slow) var(--e-out) both}
+.welcome-card{animation:card-rise var(--t-slow) var(--e-out) both}
+.tpl{animation:tpl-in var(--t-slow) var(--e-out) both}
+.tpl:nth-child(1){animation-delay:60ms}
+.tpl:nth-child(2){animation-delay:100ms}
+.tpl:nth-child(3){animation-delay:140ms}
+.tpl:nth-child(4){animation-delay:180ms}
+
+/* ── 7. phone panes ───────────────────────────────────────────────────── */
+@keyframes pane-in-l{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+@keyframes pane-in-r{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+@keyframes pane-in-b{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.pane.slide-l{animation:pane-in-l var(--t-slow) var(--e-out) both}
+.pane.slide-r{animation:pane-in-r var(--t-slow) var(--e-out) both}
+.pane.slide-b{animation:pane-in-b var(--t-slow) var(--e-out) both}
+@keyframes selbar-in{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:none}}
+.selbar.got{animation:selbar-in var(--t-ui) var(--e-out) both}
+
+/* ── 8. respect the setting ───────────────────────────────────────────── */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;
+    transition-duration:1ms!important;scroll-behavior:auto!important}
+  .tpl,.reveal>*,.welcome-card{animation-delay:0ms!important}
+}

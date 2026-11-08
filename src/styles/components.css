@@ -1,0 +1,259 @@
+/* components.css: every control the docks are made of. One shape, one accent. */
+
+/* ── buttons ──────────────────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;
+  height:var(--ctl);padding:0 10px;border-radius:var(--r);background:var(--c3);
+  transition:background var(--t-fast) linear,color var(--t-fast) linear,opacity var(--t-fast) linear;
+}
+.btn:hover:not(:disabled){background:var(--c4)}
+.btn:disabled{opacity:.38;cursor:default}
+.btn.pri{background:var(--acc);color:var(--on-acc);font-weight:500}
+.btn.pri:hover:not(:disabled){background:var(--acc-hi)}
+.btn.ghost{background:none;color:var(--ink)}
+.btn.ghost:hover:not(:disabled){background:var(--c3)}
+.btn.ghost.dng:hover:not(:disabled),.btn.dng:hover:not(:disabled){background:var(--dng);color:var(--c0)}
+.btn.sm{padding:0 8px}
+.btn.icon{width:var(--ctl);padding:0;justify-content:center}
+.btn.ghost span,.exp span{display:inline}
+.tools{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+
+/* ── tabs: left dock and properties ───────────────────────────────────── */
+.dtabs,.tabs{display:flex;height:var(--tab-h);background:var(--c1);flex:none}
+.tabs{position:sticky;top:0;z-index:5}
+.dtabs button,.tabs button{
+  padding:0 14px;height:100%;color:var(--muted);
+  transition:color var(--t-fast) linear,background var(--t-fast) linear;
+}
+.dtabs button:hover,.tabs button:hover{color:var(--ink)}
+.dtabs button[aria-selected=true],.tabs button[aria-selected=true]{background:var(--c2);color:var(--ink-hi)}
+
+/* ── fields ───────────────────────────────────────────────────────────── */
+.f{display:flex;flex-direction:column;gap:5px;min-width:0}
+.f>span{font-size:var(--fs-label);color:var(--muted)}
+.f input[type=text],.f select,.f textarea,.in{
+  width:100%;min-width:0;height:var(--ctl);padding:0 8px;border:0;border-radius:var(--r);
+  background:var(--in);box-shadow:0 0 0 1px var(--in-edge) inset;
+  transition:box-shadow var(--t-fast) linear,background var(--t-fast) linear;
+}
+.f input[type=text]:hover,.f select:hover,.f textarea:hover{box-shadow:0 0 0 1px var(--in-edge-hi) inset}
+.f input[type=text]:focus,.f select:focus,.f textarea:focus{box-shadow:0 0 0 1px var(--acc) inset}
+.f select{
+  appearance:none;padding-right:32px;
+  background-image:var(--chevron);
+  background-position:calc(100% - 10px) 50%;background-size:var(--chevron-size) var(--chevron-size);background-repeat:no-repeat;
+}
+.f select option{background:var(--c3);color:var(--ink)}
+.f textarea{resize:vertical;height:auto;min-height:58px;padding:6px 8px;line-height:1.5}
+.row2{display:flex;gap:8px}
+.row2>*{flex:1 1 0;min-width:0}
+.hint{font-size:var(--fs-body);color:var(--muted);line-height:1.5}
+.stat{font-size:var(--fs-label);color:var(--muted);min-height:16px;display:flex;gap:8px;align-items:center;line-height:1.4}
+.stat.err{color:var(--warn)}
+.dots{display:inline-flex;gap:3px;align-items:center}
+.dots i{width:4px;height:4px;border-radius:50%;background:currentColor;animation:dot 1.1s var(--e-move) infinite}
+.dots i:nth-child(2){animation-delay:.14s}
+.dots i:nth-child(3){animation-delay:.28s}
+
+/* Segmented controls: options are chips, not cells of a divided track. A five-item track leaves
+   mismatched seams when it wraps; chips wrap evenly and the gaps carry the structure. */
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+.tabbody,.dock{container-type:inline-size}
+
+.seg button{flex:1 1 auto;min-width:calc(33.333% - 4px);height:var(--ctl);padding:0 10px;border-radius:calc(var(--r) - 2px);
+  background:var(--c3);box-shadow:0 0 0 1px var(--in-edge) inset;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:background var(--t-fast) linear,color var(--t-fast) linear}
+/* four options balance as 2 x 2 rather than 3 + one stretched chip */
+.seg:has(>button:nth-child(4):last-child) button{min-width:calc(50% - 4px)}
+.seg button:hover{background:var(--c4)}
+.seg button[aria-pressed=true]{background:var(--acc);color:var(--on-acc)}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{height:var(--ctl);padding:0 9px;border-radius:var(--r);background:var(--c3);
+  transition:background var(--t-fast) linear,color var(--t-fast) linear}
+.chip:hover{background:var(--c4)}
+.chip[aria-pressed=true]{background:var(--acc);color:var(--on-acc)}
+
+/* colour swatches: the ring is a second outline, so the swatch never changes size */
+.sw{display:flex;flex-wrap:wrap;gap:6px}
+.sw button{width:22px;height:22px;border-radius:var(--r);position:relative;
+  transition:transform var(--t-press) var(--e-out)}
+.sw button[aria-pressed=true]{outline:2px solid var(--ink-hi);outline-offset:1px}
+
+/* switch */
+.tog{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer}
+.tog span{color:var(--ink)}
+.tog input{appearance:none;width:28px;height:16px;border-radius:8px;background:var(--c4);position:relative;margin:0;flex:none;cursor:pointer;
+  transition:background var(--t-fast) linear}
+.tog input::after{content:"";position:absolute;left:2px;top:2px;width:12px;height:12px;border-radius:50%;background:var(--ink);
+  transition:transform var(--t-ui) var(--e-out),background var(--t-fast) linear}
+.tog input:checked{background:var(--acc)}
+.tog input:checked::after{transform:translateX(12px);background:var(--on-acc)}
+
+/* range + its readout */
+.rg{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+.rg .lbl{font-size:var(--fs-label);color:var(--muted)}
+.rg output{margin-left:auto;color:var(--ink);font-variant-numeric:tabular-nums;font-size:var(--fs-label)}
+.rg input{
+  flex:1 1 100%;min-width:0;width:100%;margin:0;height:14px;background:none;appearance:none;cursor:pointer;
+}
+.rg input::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:var(--c4)}
+.rg input::-webkit-slider-thumb{appearance:none;width:12px;height:12px;margin-top:-4px;border-radius:50%;
+  background:var(--acc-hi);box-shadow:0 0 0 2px var(--c3);transition:transform var(--t-press) var(--e-out),background var(--t-fast) linear}
+.rg input:hover::-webkit-slider-thumb{background:var(--acc-ink)}
+.rg input:active::-webkit-slider-thumb{transform:scale(1.2)}
+.rg input::-moz-range-track{height:4px;border-radius:2px;background:var(--c4)}
+.rg input::-moz-range-thumb{width:12px;height:12px;border:0;border-radius:50%;background:var(--acc-hi)}
+.rg input:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 2px var(--c3),0 0 0 4px var(--acc-ink)}
+
+/* colour wells */
+.colors{display:flex;flex-wrap:wrap;gap:8px}
+.colors label{flex:1 1 calc(33.333% - 6px);min-width:0;display:flex;flex-direction:column;gap:4px;font-size:var(--fs-label);color:var(--muted)}
+.colors input{width:100%;height:var(--ctl);padding:0;border:0;border-radius:var(--r);background:var(--in);cursor:pointer}
+
+/* cards group related controls; the tone shift does the separating, not a border */
+.card{background:var(--c3);border-radius:var(--r2);padding:9px;display:flex;flex-direction:column;gap:9px}
+.card h3{margin:0;font:600 12px/1.2 var(--f);display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:20px}
+.card h2{font:600 12px/1.2 var(--f)}
+.castlist{display:flex;gap:4px;flex-wrap:wrap}
+.castlist button{height:var(--ctl);padding:0 10px;border-radius:var(--r);background:var(--c4);
+  transition:background var(--t-fast) linear,color var(--t-fast) linear}
+.castlist button:hover{background:var(--c4)}
+.castlist button[aria-pressed=true]{background:var(--acc);color:var(--on-acc)}
+.prev{background:var(--c0);border-radius:var(--r);height:190px;overflow:hidden}
+.prev svg{width:100%;height:100%}
+
+/* project list */
+.plist{display:flex;flex-direction:column;gap:1px}
+.pitem{display:flex;align-items:center;border-radius:var(--r);transition:background var(--t-fast) linear}
+.pitem:hover{background:var(--c3)}
+.pitem .name{flex:1;min-width:0;text-align:left;height:var(--row);padding:0 8px;border-radius:var(--r);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pitem.on{background:var(--acc);color:var(--on-acc)}
+.pitem.on .name{color:var(--on-acc)}
+.pitem small{opacity:.82;padding-right:8px;white-space:nowrap;font-size:var(--fs-label)}
+.pitem.on small{opacity:.95}
+
+/* the open project, read out under the list */
+.pmeta{padding:10px;border-radius:var(--r);background:var(--in);display:flex;flex-direction:column;gap:8px}
+.pmeta h2{font:600 var(--fs-ui)/1.3 var(--f);color:var(--ink)}
+.pmeta dl{display:flex;flex-direction:column;gap:4px;margin:0}
+.pmeta dl>div{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.pmeta dt{font-size:var(--fs-label);color:var(--muted)}
+.pmeta dd{margin:0;font-size:var(--fs-label);color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* page strip */
+.pages{display:flex;gap:2px;align-items:center;flex:none}
+.pg{min-width:24px;height:24px;padding:0 6px;border-radius:var(--r);background:var(--c3);
+  transition:background var(--t-fast) linear,color var(--t-fast) linear}
+.pg:hover{background:var(--c4)}
+.pg[aria-pressed=true]{background:var(--acc);color:var(--on-acc)}
+.opts .f{flex-direction:row;align-items:center;gap:8px;flex:none}
+.opts .f>span{color:var(--muted)}
+.opts .f select{width:auto}
+.opts .tog{flex:none;gap:8px}
+.opts .tog span{color:var(--muted);font-size:12px}
+
+/* document tab */
+#title{flex:0 1 260px;min-width:0;height:100%;border:0;border-radius:0;background:var(--c0);padding:0 14px;font-weight:500;color:var(--ink-hi)}
+#title:hover{background:var(--in)}
+
+/* the panel list under the properties */
+.rows{flex:1;overflow:auto;padding:4px}
+.row{display:flex;gap:8px;align-items:center;width:100%;height:var(--row);padding:0 8px;border-radius:var(--r);text-align:left;
+  transition:background var(--t-fast) linear,color var(--t-fast) linear}
+.row:hover{background:var(--c3)}
+.row[aria-pressed=true]{background:var(--acc);color:var(--on-acc)}
+.row b,.row small{font-weight:400;opacity:.8;font-size:var(--fs-label)}
+.row b{opacity:.95;flex:0 0 20px}
+.row small{flex:0 0 auto}
+.row[aria-pressed=true] b,.row[aria-pressed=true] small{opacity:1}
+.row span{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* a phone row drops the shot column: it repeats what the inspector already says */
+@media (max-width:420px){.row small{display:none}}
+
+/* script well */
+textarea.script{font:var(--fs-label)/1.6 var(--mono);min-height:280px;height:100%;white-space:pre;overflow:auto;tab-size:2;letter-spacing:0}
+
+.dtabs-title{font:500 var(--fs-label)/1 var(--f);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:0 10px;display:flex;align-items:center;height:100%}
+
+/* ── floating layers: menus, tooltip, toast ───────────────────────────── */
+.dd,.menu{
+  position:absolute;z-index:50;top:100%;min-width:236px;padding:4px;border-radius:var(--r2);
+  background:var(--c3);box-shadow:var(--e3);
+  display:flex;flex-direction:column;
+}
+.menu{right:6px}
+.dd button,.menu button{
+  position:relative;height:26px;padding:0 10px 0 22px;border-radius:var(--r);
+  display:flex;align-items:center;justify-content:space-between;gap:20px;white-space:nowrap;text-align:left;
+  transition:background var(--t-fast) linear,color var(--t-fast) linear;
+}
+.dd button:hover:not(:disabled),.menu button:hover{background:var(--acc);color:var(--on-acc)}
+.dd button:disabled{opacity:.4;cursor:default}
+.dd button.on::before{content:"";position:absolute;left:9px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:currentColor}
+.dd small,.menu small{color:inherit;opacity:.62;font-size:var(--fs-label)}
+.dd hr{border:0;height:6px;margin:0}
+
+/* one floating tooltip, positioned by script, so it is never clipped by a scrolling dock */
+#tip{
+  position:fixed;z-index:60;pointer-events:none;background:var(--in);color:var(--ink);
+  padding:5px 9px;border-radius:var(--r);font-size:var(--fs-label);white-space:nowrap;box-shadow:var(--e2);
+  opacity:0;transform:translateY(-2px);transition:opacity var(--t-fast) linear,transform var(--t-fast) var(--e-out);
+}
+#tip.on{opacity:1;transform:none}
+
+#toast{
+  position:fixed;left:50%;bottom:calc(38px + env(safe-area-inset-bottom,0px));z-index:70;
+  max-width:min(92vw,520px);padding:8px 14px;border-radius:var(--r2);
+  background:var(--ink-hi);color:var(--c0);font-size:var(--fs-label);box-shadow:var(--e3);
+}
+
+/* ── first run ────────────────────────────────────────────────────────── */
+.welcome:focus,.welcome:focus-visible{outline:none}
+.welcome{
+  position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:var(--scrim);
+}
+.welcome-card{
+  width:min(760px,100%);max-height:100%;overflow:auto;padding:18px;
+  background:var(--c2);border-radius:var(--r3);box-shadow:var(--e3);
+  display:flex;flex-direction:column;gap:14px;
+}
+.welcome-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.welcome-head h2{font:600 15px/1.25 var(--f);color:var(--ink-hi)}
+.welcome-lead{font-size:var(--fs-body);color:var(--muted);max-width:62ch;margin-top:5px;line-height:1.5}
+/* Four formats, always in balanced rows: four across on a desktop, two on a tablet, one per
+   row on a phone. A 3 + 1 wrap reads as a missing fifth format, so the widths are explicit. */
+.templates{display:flex;flex-wrap:wrap;gap:10px}
+.tpl{flex:1 1 calc(25% - 8px);min-width:0}
+.welcome-card{container-type:inline-size}
+.tpl{
+  display:flex;flex-direction:column;gap:7px;padding:8px;border-radius:var(--r2);background:var(--c3);
+  text-align:left;transition:background var(--t-fast) linear;
+}
+.tpl:hover{background:var(--c4)}
+.tpl-prev{width:100%;height:96px;object-fit:cover;object-position:top center;background:var(--paper);border-radius:var(--r);display:block}
+.tpl-prev-fallback{background:var(--c2)}
+.tpl-text{display:flex;flex-direction:column;gap:3px;min-width:0}
+.tpl-name{font-weight:600;font-size:var(--fs-ui);color:var(--ink-hi);line-height:1.25}
+.tpl-blurb{font-size:var(--fs-label);color:var(--muted);line-height:1.4}
+.welcome-foot{font-size:var(--fs-ui);color:var(--muted);line-height:1.5}
+.linkish{color:var(--acc-ink);font-weight:600;text-decoration:underline;text-underline-offset:2px;
+  padding:12px 2px;margin:-12px -2px;display:inline-block}
+.linkish:hover{color:var(--ink-hi)}
+
+/* The dialog decides its own columns, so the card looks right at every screen without a
+   viewport breakpoint per size. These rules sit last so they win over the base card rules:
+   a container query has the same weight as a plain rule, only the order decides.
+   Four across when there is room, two when four would be cramped, a row per format on a phone
+   where a stacked card would be taller than the screen. */
+@container (max-width:699px){
+  .tpl{flex:1 1 calc(50% - 5px)}
+}
+@container (max-width:520px){
+  .tpl{flex:1 1 100%;flex-direction:row;align-items:center;gap:12px;padding:8px}
+  .tpl-prev{width:88px;height:64px;flex:none}
+  .tpl-text{flex:1 1 auto}
+}

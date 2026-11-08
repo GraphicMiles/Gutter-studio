@@ -1,0 +1,73 @@
+/* layout.css: the frame: menu bar, tool rail, three docks, stage, status bar, phone nav.
+   A flex frame: the bar and the status bar keep their height, the panes take what is left. */
+.app{
+  position:relative;display:flex;flex-direction:column;
+  height:100%;width:100%;min-height:0;background:var(--c1);
+}
+
+/* ── menu bar ─────────────────────────────────────────────────────────── */
+.bar{position:relative;z-index:40;display:flex;align-items:center;gap:2px;height:var(--bar-h);padding:0 6px;background:var(--c1)}
+.mark{display:flex;flex-wrap:wrap;gap:2px;width:16px;height:16px;margin:0 10px 0 4px;flex:none}
+.mark b{width:7px;height:7px;background:var(--ink);border-radius:1px;transition:background var(--t-fast) linear}
+.mark b:first-child{background:var(--acc-hi)}
+.mbar{display:flex;height:100%}
+.mbar button{border-radius:var(--r);padding:0 10px;height:100%;color:var(--ink);transition:background var(--t-fast) linear}
+.mbar button:hover,.mbar button[aria-expanded=true]{background:var(--c3)}
+.bar .exp{margin-left:6px}
+
+/* ── the three docks ──────────────────────────────────────────────────── */
+.panes{
+  display:flex;gap:1px;flex:1 1 auto;min-height:0;background:var(--c0);
+}
+.pane{min-height:0;overflow:auto;overscroll-behavior:contain;background:var(--c2)}
+.pane.mid{position:relative;display:flex;flex-direction:column;overflow:hidden;background:var(--c0);flex:1 1 0;min-width:0}
+.pane.right{display:flex;flex-direction:column;gap:1px;overflow:hidden;background:var(--c0);flex:0 0 308px;min-width:0}
+
+.rail{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;background:var(--c2);flex:0 0 44px}
+.rail .gap{height:10px}
+.rail button{position:relative;width:30px;height:30px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;
+  transition:background var(--t-fast) linear,color var(--t-fast) linear}
+.rail button:hover{background:var(--c3)}
+.rail button:active{background:var(--acc);color:var(--on-acc)}
+
+/* left dock: a tab strip over one scrolling panel */
+.pane.left{display:flex;flex-direction:column;overflow:hidden;flex:0 0 268px;min-width:0}
+.dock{flex:1;min-height:0;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:10px}
+.dock.grow>*{min-height:0}
+/* a well that holds the whole panel should fill it: a 200px box in a 700px dock reads as broken */
+.dock>.f.grow{flex:1 1 auto;min-height:0}
+.dock>.f.grow textarea{flex:1 1 auto;height:100%}
+
+/* right dock: properties on top, the page's panel list pinned underneath */
+.rtop{flex:1;min-height:0;overflow:auto;background:var(--c2)}
+.rbot{flex:none;height:196px;display:flex;flex-direction:column;background:var(--c2)}
+/* the pinned list is a separate region, so it gets a rule instead of a sliced control */
+.rbot .dtabs{border-top:1px solid var(--in-edge)}
+
+/* ── the board ────────────────────────────────────────────────────────── */
+.opts{display:flex;align-items:center;gap:12px;height:34px;padding:0 8px;background:var(--c2);flex:none;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.opts::-webkit-scrollbar{display:none}
+.doctab{display:flex;align-items:center;gap:2px;height:var(--tab-h);padding-right:6px;background:var(--c1);flex:none}
+.doctab .sp{flex:1}
+.stage{flex:1;min-height:0;overflow:auto;display:flex;padding:22px;background:var(--c0);position:relative;scroll-behavior:smooth}
+.sheet{margin:auto;flex:none;background:var(--paper);transition:width var(--t-slow) var(--e-move)}
+.sheet svg{width:100%;height:auto;display:block}
+.sheet [data-pid]{cursor:pointer}
+.selbar{display:none;flex:none}
+
+/* ── status bar ───────────────────────────────────────────────────────── */
+.status{display:flex;align-items:center;gap:14px;height:26px;padding:0 10px;background:var(--c1);color:var(--muted);font-size:var(--fs-label);flex:none}
+.status button{border-radius:var(--r);height:18px;min-width:20px;padding:0 5px;color:var(--ink);display:flex;align-items:center;justify-content:center;
+  transition:background var(--t-fast) linear}
+.status button:hover{background:var(--c3)}
+.status .i{width:12px;height:12px}
+#saved{display:inline-flex;align-items:center;gap:6px}
+#saved .short{display:none}
+#saved .full{white-space:nowrap}
+#saved::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none;transition:background var(--t-fast) linear}
+#saved[data-state=saving]::before{background:var(--acc-hi)}
+#saved[data-state=unsaved]::before{background:var(--warn)}
+
+/* ── phone navigation ─────────────────────────────────────────────────── */
+.nav{display:none}
+.nav button{flex:1 1 0}
