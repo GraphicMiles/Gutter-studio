@@ -1,63 +1,147 @@
-/* tokens.css: the whole visual system in one place.
-   A workspace, not a webpage: five flat tones, one accent, no borders between regions.
-   Regions are separated by tone; only floating layers get elevation. */
+/* tokens.css: the visual system.
+ *
+ * Geometry and type are measured from the Ultramock editor (ultramock.io/editor); the surfaces are
+ * flattened deliberately. Four background steps carry the structure — window ground, chrome slab,
+ * card, and a white well for anything you can type in or press. Nothing is built out of gradients,
+ * glass, glows or fake bevels: separation comes from the step, one hairline where two equal steps
+ * meet, and a single soft shadow on layers that genuinely float above content.
+ *
+ * One accent, an orange (#fd631f). It appears on the primary action, on a switch that is on, on the
+ * progress fill and on status dots. It is never used as an outline, ring, glow or border.
+ *
+ * Motion is the reference's own vocabulary, measured from its stylesheets:
+ *   70ms  press feedback (translateY(1px), shadow collapses)
+ *   100ms small background/colour swaps (tabs, toggles, selects, menu items)
+ *   150ms colour, border and shadow state changes
+ *   180ms transform on controls (cubic-bezier(.22,1,.36,1))
+ *   200ms popover/menu enter, scrim fade
+ *   220ms staggered child reveal
+ *   320ms disclosure height (a section opening)
+ */
 :root{
-  /* surfaces, darkest to lightest */
-  --c0:#1b1b1b;   /* canvas, behind the page */
-  --c1:#262626;   /* chrome: menu bar, tab strips, status bar */
-  --c2:#303030;   /* panels and docks */
-  --c3:#3a3a3a;   /* controls, resting */
-  --c4:#474747;   /* controls, hover */
-  --in:#1d1d1e;   /* wells and inputs */
-  --line:#3f3f3f; /* only where a control needs an edge (focus, swatch ring) */
+  /* ground and slabs: four flat steps */
+  --app-bg:#e9e9ea;                    /* the window itself */
+  --surface:#f4f4f5;                   /* chrome: bars, panels, rail */
+  --surface-card:#fafafa;              /* a card inside a panel, a floating layer */
+  --surface-well:#ffffff;              /* a control that reads as paper */
+  --surface-muted:#eeeef0;             /* a quiet chip, a groove */
+  --surface-hover:#e8e8ea;             /* hover on a slab */
+  --surface-sunken:#e2e2e4;            /* pressed, or behind something */
+  --surface-groove:#e6e6e8;            /* a track or a recess */
 
-  /* text: every value checked against every surface for 4.5:1 or better */
-  --ink:#dcdcdc;      /* 9.9:1 on c2 */
-  --ink-hi:#f4f4f4;   /* selection and titles */
-  --muted:#a4a4a6;    /* 4.6:1 on c3, 5.3:1 on c2 */
+  --frame-border:rgba(0,0,0,.08);
+  --card-border:rgba(0,0,0,.10);
+  --separator:rgba(0,0,0,.09);
+  --separator-strong:rgba(0,0,0,.22);
 
-  /* one accent, three jobs */
-  --acc:#2f6fd0;      /* fills: white on it is 4.9:1 */
-  --acc-hi:#3f7de0;   /* hover on a fill */
-  --acc-ink:#8ab6ff;  /* accent as text and as focus ring: 6.4:1 on c2 */
+  /* ink, three weights, no fourth */
+  --text-primary:#09090b;
+  --text-secondary:rgba(0,0,0,.66);
+  --text-tertiary:rgba(0,0,0,.42);
+  --text-on-accent:#ffffff;
+  --ink-invert:#ffffff;
 
-  --ok:#5cc98a;
-  --warn:#e0a458;
-  --dng:#e2685f;
+  /* one accent: primary action, "on" state, progress, status dots */
+  --accent:#fd631f;
+  --accent-hot:#ff8a4c;
+  --accent-ink:#b8420f;                /* accent as text on a light surface */
+  --accent-strong:#fd631f;
+  --accent-strong-hover:#ec5410;
+  --accent-strong-press:#d8480a;
+  --accent-soft:rgba(253,99,31,.10);
+  --accent-tint:#fff1e9;               /* the flattest possible accent wash */
 
-  /* four roles that are not palette colours, only surfaces with one job each */
-  --on-acc:#fff;          /* text and icons drawn on an accent fill */
-  --paper:#fff;           /* the comic page itself, the only pure white in the app */
-  --in-edge:#27272a;      /* the hairline inside a well; never used as a divider */
-  --in-edge-hi:#333335;   /* the same hairline on hover */
-  --scrim:rgba(17,17,18,.78); /* the flat wash behind a focused overlay */
-  --chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a4a4a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); /* Lucide chevron-down, the muted ink */
-  --chevron-size:14px;
+  /* status: words always accompany these */
+  --danger:#c9332c;
+  --danger-soft:rgba(201,51,44,.09);
+  --success:#227d4d;
+  --success-soft:rgba(34,125,77,.09);
+  --warning:#9a6413;
+  --warning-soft:rgba(154,100,19,.10);
 
-  --f:'Inter var',Inter,system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,Cantarell,'Helvetica Neue',Arial,sans-serif;
-  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  /* keyboard focus: an ink rule, never the accent */
+  --focus:rgba(9,9,11,.78);
+  --focus-offset:2px;
+  --focus-width:2px;
 
-  /* type scale: 12 is the floor for anything a person must read (skill 5.16 §4) */
-  --fs-label:12px;   /* field labels, status text, list meta */
-  --fs-ui:12.5px;    /* buttons, tabs, controls */
-  --fs-body:13px;    /* dock copy, hints */
-  --fs-lead:14px;    /* empty-state lead */
+  /* the select chevron, from the same 2px stroke geometry as the icon set */
+  --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(0,0,0,.55)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 
-  /* geometry */
-  --r:3px; --r2:6px; --r3:10px;
-  --row:26px; --ctl:24px;
-  --bar-h:30px; --tab-h:28px;
+  /* the paper the renderer draws: untouched by the chrome */
+  --paper:#FFFFFF;
 
-  /* elevation, for floating layers only */
-  --e1:0 1px 2px rgba(0,0,0,.45);
-  --e2:0 2px 6px rgba(0,0,0,.4),0 12px 28px -10px rgba(0,0,0,.6);
-  --e3:0 10px 48px -12px rgba(0,0,0,.75),0 2px 8px rgba(0,0,0,.5);
+  /* type: Geist, with the platform stack behind it */
+  --f:Geist,'Geist Sans','GeistSans',Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --fs-title:17px;                    /* page and panel titles */
+  --fs-panel:15px;
+  --fs-section:10px;                  /* uppercase section labels, +0.4px */
+  --fs-label:13px;                    /* every control */
+  --fs-body:13px;
+  --fs-desc:11.5px;
+  --fs-small:12px;
+  --fs-meta:10px;
+  --lh:1.45;
+  --lh-tight:1.2;
+  --track-label:.4px;
 
-  /* motion: see motion.css. Fast in, calm out; nothing bounces twice. */
-  --t-press:90ms; --t-fast:120ms; --t-ui:170ms; --t-slow:260ms; --t-page:340ms;
-  --e-out:cubic-bezier(.16,1,.3,1);      /* entrances */
-  --e-in:cubic-bezier(.4,0,1,1);         /* exits */
-  --e-move:cubic-bezier(.22,.61,.36,1);  /* things that slide */
+  /* spacing: 4px base */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px;
 
-  color-scheme:dark;
+  /* radii: the measured ladder */
+  --r-1:8px; --r-2:10px; --r-3:14px; --r-4:16px; --r-5:20px; --r-6:24px; --r-7:28px; --r-8:32px;
+  --r-pill:999px;
+
+  /* control geometry */
+  --h-header:44px;
+  --h-ctx:40px;
+  --h-ctl:28px;
+  --h-ctl-lg:32px;
+  --w-rail:44px;
+  --w-browser:248px;
+  --w-inspector:308px;
+  --h-pages:112px;
+  --h-status:28px;
+  --h-nav:56px;
+  --frame-gap:10px;                   /* the gutter between every slab */
+  --frame-inset:14px;                 /* the margin from the window edge */
+
+  /* elevation: there is none. Nothing casts a shadow anywhere in the product. A layer that floats
+     above content separates by fill step and a stronger hairline, never by a drop shadow. */
+  --sh-frame:none;
+  --sh-card:none;
+  --sh-well:none;
+  --sh-groove:none;
+  --sh-chip:none;
+  --sh-menu:none;
+  --sh-dialog:none;
+  --sh-sheet:none;
+  --layer-border:rgba(0,0,0,.20);     /* the hairline that makes a layer read as being on top */
+
+  /* motion: durations and curves measured from the reference */
+  --t-press:70ms;
+  --t-1:100ms;
+  --t-2:120ms;
+  --t-3:150ms;
+  --t-4:160ms;
+  --t-5:180ms;
+  --t-6:200ms;
+  --t-fast:120ms;                     /* compatibility aliases used by earlier sheets */
+  --t-ui:200ms;
+  --t-7:220ms;
+  --t-slow:240ms;
+  --t-8:320ms;
+
+  --e-out:cubic-bezier(.16,1,.3,1);          /* layers arriving */
+  --e-move:cubic-bezier(.22,1,.36,1);        /* any transform */
+  --e-soft:cubic-bezier(.23,1,.32,1);        /* tips, background */
+  --e-material:cubic-bezier(.4,0,.2,1);
+  --e-dialog:cubic-bezier(.215,.61,.355,1);
+  --e-spring:cubic-bezier(.34,1.56,.64,1);   /* only for a knob landing */
+  --e-in:cubic-bezier(.4,0,1,1);
+
+  /* one stagger step, used by every layer that reveals its children */
+  --stagger:35ms;
+
+  color-scheme:light;
 }

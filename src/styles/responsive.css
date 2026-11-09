@@ -1,169 +1,143 @@
-/* responsive.css: the workspace folds down to one pane at a time, and stays a tool.
-   Below 860px the app is a viewer with an inspector: the rail and status bar go, the bottom
-   tab bar takes over, and every control grows to a finger-sized target. */
-
-@media (max-width:1240px){
-  .rail{flex-basis:44px}
-  .pane.left{flex-basis:236px}
-  .pane.right{flex-basis:284px}
+/* responsive.css: one workspace that adapts, and a phone that gets its own shell.
+ *
+ *   1280+      full workspace
+ *   1024–1279  narrower panels, canvas still dominant
+ *   768–1023   browser and inspector become drawers over the canvas
+ *   <768       dedicated mobile shell: header, canvas, quick actions, five destinations
+ */
+@media (max-width:1279px){
+  :root{--w-browser:216px;--w-inspector:272px}
 }
-/* A 1024 laptop still gets the workspace: narrower docks, never a squeezed one. */
-@media (max-width:1120px){
-  .rail{flex-basis:40px}
-  .pane.left{flex-basis:212px}
-  .pane.right{flex-basis:260px}
-}
-/* Below a laptop the three docks cannot all keep a readable width, so it becomes one pane at a
-   time and the rail stays as the visual anchor. */
-
-@media (max-width:900px){
-  /* single-pane mode, with the rail kept: it is the difference between a tool and a page */
-  .rail{flex:0 0 40px}
-  .panes>.pane{flex:1 1 auto;min-width:0;display:none;height:100%;width:100%;overflow:hidden}
-  .panes>.pane.show{display:flex;flex-direction:column}
-  .panes>.pane.right.show{display:block;overflow:auto}
-  .rtop{overflow:visible}
-  .rbot{display:flex;height:auto;flex:none}
-  .rows{flex:none;overflow:visible}
-  .status{display:none}
-  .nav{display:flex;gap:1px;background:var(--c1)}
-  .nav button{height:44px;background:var(--c1);color:var(--muted);font-size:12px;letter-spacing:.04em;text-transform:uppercase;font-weight:600}
-  .nav button[aria-pressed=true]{background:var(--c2);color:var(--ink-hi)}
-  .selbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:var(--c2);flex:none;font-size:13px}
+@media (max-width:1099px){
+  :root{--w-browser:200px;--w-inspector:256px;--h-pages:108px}
+  .brand .wordmark{display:none}
 }
 
-/* A phone in landscape is 844 by 390: wider than the phone band, but it is still a finger
-   device with almost no vertical room. Short viewports get the touch layout too. */
-@media (max-width:780px), (max-height:520px){
-  body{font-size:15px}
-  /* chrome stays small: a menu bar is not body text */
-  .bar{font-size:13px}
-  .welcome-head h2{font-size:17px}
-  .welcome-lead,.welcome-foot{font-size:13px}
-  .card h3{font-size:13.5px}
-  .f>span{font-size:13px}
-  .dtabs button{font-size:13px}
-  .bar{flex:none}
+/* ── drawers: the canvas keeps its width, panels come over it ─────────── */
+@media (max-width:1023px){
+  /* the drawers park just outside this box; clipping here keeps the page from scrolling sideways */
+  .work{position:relative;overflow:hidden}
+  .browser,.inspector{
+    position:absolute;top:0;bottom:0;z-index:60;
+    width:min(300px,86vw);
+  }
+  .browser{left:0;transform:translateX(-102%);transition:transform var(--t-ui) var(--e-out)}
+  .inspector{right:0;transform:translateX(102%);transition:transform var(--t-ui) var(--e-out)}
+  .browser.open,.inspector.open{transform:none}
+  .browser[hidden],.inspector[hidden]{display:flex!important}
+  /* in this range a side panel is a drawer, so the header buttons are the only way to it */
 
-  /* one pane at a time */
-  .panes{display:flex;overflow:hidden;background:var(--c1)}
-  .panes>.pane{display:none;height:100%;width:100%;overflow:hidden}
-  .rail,footer.status,.rbot{display:none}
-
-  /* A 360px screen cannot spare 40px for a rail whose four actions already exist in the page
-     strip and the inspector. The pane takes the full width instead. */
-  .rail{display:none}
-
-  /* the board toolbar wraps rather than scrolling sideways */
-  .opts{height:auto;flex-wrap:wrap;row-gap:8px;padding:10px;overflow:visible}
-  .opts .sp{display:none}
-  .opts>label.f{margin-left:auto}
-
-  /* the phone pane: everything scrolls inside it except the tab strip */
-  .panes>.pane.left{flex-direction:column}
-  .dock{padding:16px;gap:14px}
-  .panes>.pane.mid.show{display:flex;flex-direction:column}
-  .tabbody{padding:12px}
-  /* On a phone the properties and this page's panel list are one document, not two panes:
-     a short inspector above a fixed-height list would float the list in mid-screen. */
-  .panes>.pane.right{overflow:auto;background:var(--c2)}
-  .rtop{overflow:visible}
-  .rbot{display:flex;height:auto;flex:none}
-  .rows{flex:none;overflow:visible}
-
-  /* the header keeps the menu, the title and Export */
-  .bar{height:44px;gap:0;padding:0 6px}
-  .mark{margin:0 8px 0 2px}
-  .mbar button{padding:0 10px}
-  .bar .exp{height:44px;min-width:44px;padding:0 14px}
-  .btn{height:44px;padding:0 16px}
-  .btn.sm{height:44px;padding:0 14px}
-  .btn.icon{width:44px;padding:0}
-  .btn.ghost span{display:none}
-  #title{flex:1;height:44px;padding:0 12px;background:var(--in);border-radius:var(--r)}
-  .doctab{height:56px;padding:0 8px;gap:6px}
-
-  /* finger-sized everything */
-  .f input[type=text],.f select,.f textarea,.in{height:44px;padding:0 12px;font-size:16px}
-  .f textarea{height:auto;padding:10px}
-  .seg button,.chip,.castlist button,.btn.sm{height:44px}
-  .pg{min-width:44px;height:44px}
-  .pitem .name{height:44px}
-  /* a one-item project list is not the main event on a phone: keep its rows at the control
-     scale so the read-out below it stays the focus */
-  .pitem .name{font-size:15px}
-  .row{height:44px}
-  .sw button{width:44px;height:44px}
-  .tog{min-height:44px}
-  .tog input{width:46px;height:26px;border-radius:13px}
-  .tog input::after{width:22px;height:22px}
-  .tog input:checked::after{transform:translateX(20px)}
-  /* a range needs a full-height hit area on touch, not a hairline track */
-  .rg input{height:44px;margin:-6px 0}
-  /* action rows read as a block of actions, not a ragged wrap: two even columns */
-  .tools{gap:6px}
-  .tools .btn{flex:1 1 calc(50% - 3px);width:calc(50% - 3px)}
-  .rg{gap:6px 10px}
-  .dtabs,.tabs{height:44px}
-  .dtabs button,.tabs button{flex:1;padding:0 8px}
-  .opts{height:60px;gap:10px;padding:0 10px}
-  .opts .f>span{display:none}
-  .opts .tog span{font-size:13px}
-  .opts .f select{height:44px}
-  #saved .full{display:none}
-  #saved .short{display:inline}
-  .stage{padding:12px}
-  .dock.grow{display:flex}
-
-  /* the selection bar slides in under the page when a panel is picked */
-  .selbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:var(--c2);flex:none;font-size:13px}
-  .selbar #selTxt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
-
-  /* bottom sections */
-  .nav{display:flex;gap:1px;background:var(--c1);padding-bottom:env(safe-area-inset-bottom,0px)}
-  .nav button{height:48px;background:var(--c1);color:var(--muted);font-size:12px;letter-spacing:.04em;text-transform:uppercase;font-weight:600;
-    transition:color var(--t-fast) linear,background var(--t-fast) linear}
-  .nav button[aria-pressed=true]{background:var(--c2);color:var(--ink-hi)}
-
-  /* menus get the width of the phone, not the width of a word */
-  .dd{left:6px!important;right:6px;min-width:0}
-  .dd button,.menu button{height:40px}
-  #toast{bottom:calc(58px + env(safe-area-inset-bottom,0px))}
-  .welcome{padding:14px}
-  /* the card's own columns are set by container queries in components.css */
-  .tpl-name{font-size:13.5px}
-  .tpl-blurb{font-size:12.5px;line-height:1.35}
-  .welcome-card{padding:16px;gap:12px}
-  .welcome-head h2{font-size:19px}
-  .welcome-lead{font-size:14px}
-  .welcome-foot{font-size:14px}
+  .grip{display:none}
+  .drawer-scrim{position:absolute;inset:0;z-index:55;background:rgba(29,29,31,.2)}
+  .rail{width:44px}
+  .tool{width:32px;height:32px}
 }
 
-/* ── short viewports: a phone in landscape is all width and no height ────
-   Every pixel of chrome is art the user cannot see, so the rows that can be compact are compact
-   while the targets stay finger sized. */
-@media (max-height:520px){
-  .opts{height:44px;padding:0 10px;flex-wrap:nowrap;row-gap:0}
-  .doctab{height:44px}
-  .stage{padding:8px;align-items:flex-start}
-  .selbar{padding:4px 12px}
-  .nav button{height:44px}
-  .bar{height:44px}
-  #toast{bottom:calc(48px + env(safe-area-inset-bottom,0px))}
+/* short windows get a shallower filmstrip, so the page keeps the height */
+@media (max-height:620px){
+  :root{--h-pages:88px}
 }
 
-/* ── very narrow: the project title leaves the header ────────────────────
-   It is editable in the document tab a few pixels below, so the header keeps the menus,
-   which have nowhere else to go. */
-@media (max-width:560px){
-  .bar #title{display:none}
-  .mbar{flex:1;justify-content:flex-start}
-  .mbar button{padding:0 9px}
-  .mark{margin:0 6px 0 2px}
+/* ── mobile shell ─────────────────────────────────────────────────────── */
+@media (max-width:767px){
+  body{font-size:var(--fs-body)}
+  /* the phone shell keeps the same floating logic, tightened: 10px insets, 8px gutters */
+  .app{height:100%;height:100dvh;padding:10px;gap:var(--sp-2)}
+  .appbar{height:52px;padding:0 var(--sp-2);gap:var(--sp-1)}
+  .brand{padding-right:0}
+  .brand .mark{width:24px;height:24px}
+  .projectmenu{max-width:none;flex:1;min-width:0;height:36px}
+  .projectmenu .pname{max-width:none;font-size:14px}
+  .appbar .hide-mobile{display:none}
+  /* a phone has no drawers and no keep-last-viewed toggle: those panels are destinations */
+  #viewActions{display:none}
+  /* the name is the one thing that must stay readable: quiet states collapse, failures stay loud */
+  .savechip{padding:0 6px}
+  .savechip[data-state="saved"] .savetext,
+  .savechip[data-state="synced"] .savetext{display:none}
+  .savechip .ic{width:16px;height:16px}
+  .projectmenu{flex:1 1 auto;min-width:0;padding-right:var(--sp-2)}
+  .projectmenu .pname{max-width:none;flex:1 1 auto;min-width:0}
+  .ctxbar,.status,.pages,.rail,.grip{display:none!important}
+  /* a phone has no permanent sidebars: the resource browser and the inspector are the Add and
+     Edit destinations, and they live in the one sheet */
+  .browser,.inspector{display:none!important}
+  .drawer-scrim{display:none}
+  .work{flex:1;min-height:0;position:relative}
+  .canvas{flex:1;min-width:0}
+
+  /* the page fills the canvas area, with room to breathe and to swipe */
+  .stage{padding:var(--sp-3);touch-action:manipulation}
+  .sheetwrap{gap:0}
+  .sheetmeta{display:none}
+
+  /* controls that appear on the canvas are finger sized */
+  .stage .iconbtn{width:36px;height:36px}
+
+  .nav{
+    display:flex;align-items:stretch;flex:none;gap:2px;
+    border-radius:var(--r-6);padding:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom,0px));
+    border:1px solid var(--frame-border);
+    background:var(--surface);
+  }
+  .nav button{
+    flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    height:48px;border-radius:var(--r-4);
+    color:var(--text-secondary);font-size:9.5px;font-weight:500;letter-spacing:.4px;text-transform:uppercase;
+    min-width:0;transition:color var(--t-fast) linear,background var(--t-fast) linear,box-shadow var(--t-fast) linear;
+  }
+  .nav button .ic{width:20px;height:20px}
+  /* the current destination is a white cell with an ink rule above its label */
+  .nav button[aria-pressed="true"]{
+    color:var(--text-primary);background:var(--surface-well);
+    box-shadow:inset 0 0 0 1px var(--card-border);
+  }
+  .nav button:active{background:var(--surface-hover)}
+
+  .quickbar{
+    display:flex;border-radius:var(--r-5);padding:4px;
+    border:1px solid var(--frame-border);background:var(--surface);
+  }
+  .toast-bottom{}
+
+  /* dialogs become full-height sheets on a phone */
+  .scrim{align-items:flex-end;padding:0}
+  .dialog{
+    width:100%;max-height:92dvh;border-radius:var(--r-4) var(--r-4) 0 0;
+    border-bottom:0;
+  }
+  .dialog-head{padding:var(--sp-3) var(--sp-3) var(--sp-2)}
+  .dialog-body{padding:var(--sp-1) var(--sp-3) var(--sp-3)}
+  .dialog-foot{padding:var(--sp-2) var(--sp-3);padding-bottom:calc(var(--sp-2) + env(safe-area-inset-bottom,0px))}
+  .dialog-foot .btn{height:40px;flex:1}
+  .with-nav .dialog-foot{padding-bottom:calc(var(--sp-6) + env(safe-area-inset-bottom,0px))}
+
+  .pop{max-height:min(60dvh,420px)}
+  .pop-item{height:40px;font-size:var(--fs-body)}
+  #toast{bottom:calc(var(--h-nav) + var(--sp-4) + env(safe-area-inset-bottom,0px))}
 }
 
-@media (max-width:420px){
-  .mbar button{padding:0 8px}
-  .bar .exp span{display:none}
-  .bar .exp{width:40px;justify-content:center;padding:0}
+/* Landscape phones: width is not the problem, height is. */
+@media (max-width:900px) and (max-height:520px){
+  .appbar{height:44px}
+  .nav button{height:48px}
+  .nav button .ic{width:18px;height:18px}
+  .nav button span{font-size:10px}
+  .quickbar{padding:2px var(--sp-2)}
+  .quickbar .iconbtn{width:32px;height:32px}
+  .stage{padding:var(--sp-2)}
+}
+
+/* Very narrow: the project name is the only thing that can give way. */
+@media (max-width:400px){
+  .appbar .savechip{display:none}
+  .projectmenu .pname{font-size:13.5px}
+}
+
+/* Respect the platform's motion setting: no transitions, no sheet glide. */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:1ms!important;animation-iteration-count:1!important;
+    transition-duration:1ms!important;scroll-behavior:auto!important;
+  }
 }

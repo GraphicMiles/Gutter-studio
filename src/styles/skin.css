@@ -1,0 +1,343 @@
+/* skin.css: the surface language, flat.
+ *
+ * The window is a stack of slabs on one ground colour: chrome is --surface, a card inside a panel is
+ * --surface-card, anything you press or type in is --surface-well (white), and a recess is
+ * --surface-groove. No gradients, no glass, no glows, no bevel highlights. Where two equal steps
+ * meet, a single hairline separates them; where something floats above content, one soft shadow.
+ *
+ * State is expressed by fill and ink, never by an orange ring:
+ *   hover     one step darker (or one step lighter on a groove)
+ *   pressed   one step darker again, and 1px down for the length of the press
+ *   selected  white fill, ink hairline, ink label
+ *   focus     a 2px ink rule outside the control
+ */
+
+/* ── the window ───────────────────────────────────────────────────────── */
+html,body{background:var(--app-bg)}
+.app{padding:var(--frame-inset);gap:var(--frame-gap);background:var(--app-bg)}
+
+/* every slab shares one recipe: a fill and a radius, nothing else */
+.appbar,.ctxbar,.rail,.browser,.canvas,.inspector,.pages,.status,.quickbar{
+  background:var(--surface);
+  border:1px solid var(--frame-border);
+}
+
+/* ── bars ─────────────────────────────────────────────────────────────── */
+.appbar{
+  height:var(--h-header);
+  border-radius:var(--r-7);
+  padding:0 var(--sp-2) 0 var(--sp-3);
+}
+.brand .mark{border-radius:var(--r-1);background:var(--text-primary)}
+.projectmenu{height:30px;border-radius:var(--r-pill);padding:0 var(--sp-3) 0 var(--sp-2)}
+.projectmenu:hover{background:var(--surface-hover)}
+.projectmenu[aria-expanded="true"]{background:var(--surface-well);box-shadow:inset 0 0 0 1px var(--card-border)}
+.projectmenu .pname{font-size:15px;font-weight:600;letter-spacing:-.15px}
+.savechip{height:24px;border-radius:var(--r-pill);padding:0 var(--sp-2);font-size:var(--fs-desc)}
+.savechip[data-state="error"]{background:var(--danger-soft);color:var(--danger)}
+
+.ctxbar{
+  height:var(--h-ctx);
+  border-radius:var(--r-5);
+  padding:0 var(--sp-3);
+}
+.ctxbar .lbl{
+  font-size:var(--fs-section);font-weight:500;letter-spacing:var(--track-label);
+  text-transform:uppercase;color:var(--text-tertiary);
+}
+
+/* ── the work row ─────────────────────────────────────────────────────── */
+.work{gap:var(--frame-gap)}
+
+.rail{
+  width:var(--w-rail);
+  border-radius:var(--r-5);
+  padding:var(--sp-2) 0;
+  gap:2px;
+}
+.tool{width:34px;height:34px;border-radius:var(--r-1);color:var(--text-secondary)}
+.tool:hover{background:var(--surface-hover);color:var(--text-primary)}
+/* a chosen tool is filled, and marked by its own ink rule under the glyph */
+.tool[aria-pressed="true"]{
+  background:var(--surface-well);box-shadow:inset 0 0 0 1px var(--card-border);
+  color:var(--text-primary);
+}
+.tool[aria-pressed="true"]::before{
+  content:"";position:absolute;left:9px;right:9px;bottom:3px;height:2px;border-radius:1px;
+  background:var(--text-primary);
+}
+.rail .rail-sep{background:var(--separator);margin:var(--sp-1) 0}
+
+.browser,.inspector{border-radius:var(--r-6)}
+.browser-head{padding:var(--sp-3) var(--sp-3) var(--sp-2);gap:var(--sp-2)}
+.browser-title h2{font-size:var(--fs-panel);font-weight:600;letter-spacing:-.1px}
+.browser-body{padding:var(--sp-1) var(--sp-2) var(--sp-3)}
+.browser-foot{padding:var(--sp-2);border-top:0}
+
+.canvas{border-radius:var(--r-6);overflow:hidden;background:var(--surface-muted)}
+.stage{padding:var(--sp-5)}
+/* paper on a recess: one hairline does the separating now that nothing casts a shadow */
+.sheet{border-radius:var(--r-1);border:1px solid var(--card-border)}
+.sheet svg{border-radius:var(--r-1)}
+
+/* ── the filmstrip and the status line ────────────────────────────────── */
+.pages{border-radius:var(--r-6);padding:var(--sp-2) var(--sp-3)}
+.pages-head h2,.pages-head .lbl{
+  font-size:var(--fs-section);font-weight:500;letter-spacing:var(--track-label);
+  text-transform:uppercase;color:var(--text-tertiary);
+}
+.thumb{border-radius:var(--r-3);background:transparent;border:1px solid transparent}
+.thumb:hover{background:var(--surface-hover)}
+.thumb[aria-current="true"]{background:var(--surface-well);border-color:var(--card-border)}
+.thumb[aria-current="true"] .thumb-img{box-shadow:0 0 0 1px var(--text-primary)}
+.thumb[aria-current="true"] .thumb-n{color:var(--text-primary);font-weight:600}
+.thumb .frame{border-radius:var(--r-2)}
+.thumb-add{border-radius:var(--r-3);background:var(--surface-muted);color:var(--text-tertiary)}
+.thumb-add:hover{background:var(--surface-hover);color:var(--text-primary)}
+
+.status{
+  height:26px;border-radius:var(--r-pill);padding:0 var(--sp-3);
+  font-size:var(--fs-meta);letter-spacing:.2px;color:var(--text-secondary);
+}
+.status .zoomval{font-family:var(--mono);font-size:var(--fs-meta);letter-spacing:.3px}
+.status button{height:20px;border-radius:var(--r-pill)}
+.status button:hover{background:var(--surface-hover);color:var(--text-primary)}
+
+/* ── controls ─────────────────────────────────────────────────────────── */
+.btn{
+  height:var(--h-ctl);padding:0 var(--sp-3);
+  border-radius:var(--r-pill);
+  font-size:var(--fs-label);font-weight:500;letter-spacing:-.05px;
+  background:var(--surface-well);
+  border:1px solid var(--card-border);
+}
+.btn:hover:not(:disabled){background:var(--surface-card)}
+.btn:active:not(:disabled){background:var(--surface-muted)}
+.btn .ic{width:15px;height:15px}
+.btn-sm{height:24px;padding:0 var(--sp-2);font-size:var(--fs-desc)}
+.btn-lg{height:var(--h-ctl-lg);padding:0 var(--sp-4);font-size:var(--fs-label)}
+
+.btn-primary{
+  background:var(--accent);color:var(--text-on-accent);
+  border-color:transparent;
+}
+.btn-primary:hover:not(:disabled){background:var(--accent-hot);color:#fff}
+.btn-primary:active:not(:disabled){background:var(--accent-strong-press)}
+.btn-quiet{background:transparent;border-color:transparent;color:var(--text-secondary)}
+.btn-quiet:hover:not(:disabled){background:var(--surface-hover);color:var(--text-primary)}
+.btn-danger{background:transparent;border-color:transparent;color:var(--danger)}
+.btn-danger:hover:not(:disabled){background:var(--danger-soft)}
+.btn-danger-solid{background:var(--danger);color:#fff;border-color:transparent}
+.btn-danger-solid:hover:not(:disabled){background:#bf262e}
+
+.iconbtn{
+  border-radius:var(--r-1);
+  color:var(--text-secondary);
+}
+.iconbtn:hover:not(:disabled){background:var(--surface-hover);color:var(--text-primary)}
+.iconbtn:active:not(:disabled){background:var(--surface-sunken)}
+/* open or engaged: a white cell with an ink hairline, so state is shape and ink, not hue */
+.iconbtn[aria-pressed="true"],.iconbtn[aria-expanded="true"]{
+  background:var(--surface-well);box-shadow:inset 0 0 0 1px var(--card-border);
+  color:var(--text-primary);
+}
+.appbar .iconbtn{border-radius:var(--r-pill)}
+.rail .iconbtn{border-radius:var(--r-1)}
+
+/* segmented control: a recess with one white cell */
+.seg{
+  background:var(--surface-muted);
+  border-radius:var(--r-2);
+  padding:2px;
+  gap:2px;
+}
+.seg button{
+  height:24px;border-radius:calc(var(--r-2) - 2px);
+  font-size:var(--fs-desc);font-weight:500;color:var(--text-secondary);
+}
+.seg button:hover{color:var(--text-primary)}
+.seg button[aria-pressed="true"]{
+  background:var(--surface-well);color:var(--text-primary);
+  box-shadow:inset 0 0 0 1px var(--card-border);
+}
+.seg.wide{padding:2px}
+
+/* fields: white, one hairline, ink on focus */
+.input,select.input,textarea.input{
+  height:30px;border-radius:var(--r-2);
+  background:var(--surface-well);
+  border:1px solid var(--card-border);
+  font-size:var(--fs-label);color:var(--text-primary);
+  padding:0 var(--sp-2);
+}
+textarea.input{height:auto;padding:var(--sp-2);line-height:1.5}
+.input:hover:not(:focus){border-color:var(--separator-strong)}
+/* focus is a border and a rule, never a coloured halo */
+.input:focus,.input:focus-visible{
+  outline:none;border-color:var(--text-primary);
+  box-shadow:inset 0 0 0 1px var(--text-primary);
+}
+select.input{appearance:none;padding-right:26px;background-image:var(--chev);background-repeat:no-repeat;background-position:right 8px center;background-size:14px}
+
+.field{gap:5px}
+.field > label,.field-label,.slider-head label,.section-hint,.prow > .plabel{
+  font-size:var(--fs-section);font-weight:500;letter-spacing:var(--track-label);
+  text-transform:uppercase;color:var(--text-tertiary);
+}
+.section-hint{text-transform:none;letter-spacing:0;font-size:var(--fs-desc);color:var(--text-secondary);font-weight:400}
+
+/* toggle: a recess, a white knob */
+.toggle input{width:34px;height:20px;border-radius:var(--r-pill);background:var(--surface-sunken)}
+.toggle input::after{width:16px;height:16px;left:2px;top:2px;background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
+.toggle input:checked{background:var(--accent)}
+.toggle input:checked::after{transform:translateX(14px);box-shadow:none}
+
+/* slider: a recess, a white thumb */
+.slider input[type="range"]{height:20px}
+.slider input[type="range"]::-webkit-slider-runnable-track{height:6px;border-radius:var(--r-pill);background:var(--surface-sunken)}
+.slider input[type="range"]::-moz-range-track{height:6px;border-radius:var(--r-pill);background:var(--surface-sunken)}
+.slider input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;margin-top:-4px;border-radius:50%;
+  background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.28);
+  transition:transform var(--t-2) var(--e-move),box-shadow var(--t-3) linear;
+}
+.slider input[type="range"]:hover::-webkit-slider-thumb{transform:scale(1.12)}
+.slider input[type="range"]:active::-webkit-slider-thumb{transform:scale(.96)}
+.slider input[type="range"]::-moz-range-thumb{width:14px;height:14px;border:0;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.28)}
+
+/* swatches: flat tiles; the chosen one is ringed in ink */
+.swatch{width:24px;height:24px;border-radius:var(--r-1);box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
+.swatch:hover{box-shadow:inset 0 0 0 1px rgba(0,0,0,.38)}
+.swatch[aria-pressed="true"]{box-shadow:inset 0 0 0 1px rgba(0,0,0,.14),0 0 0 2px var(--surface-card),0 0 0 3px var(--text-primary)}
+.colorwell span{font-size:var(--fs-meta);color:var(--text-tertiary);letter-spacing:.3px}
+
+/* ── panel sections ───────────────────────────────────────────────────── */
+.section{border-bottom:0;padding-top:2px}
+.section-head{
+  padding:var(--sp-2);
+  border-radius:var(--r-1);
+  font-size:var(--fs-section);font-weight:500;letter-spacing:var(--track-label);
+  text-transform:uppercase;color:var(--text-tertiary);
+}
+.section-head:hover{background:var(--surface-hover);color:var(--text-secondary)}
+.section-head .ic{width:13px;height:13px}
+.section-body{gap:var(--sp-2);padding:0 var(--sp-2) var(--sp-3)}
+
+.rows{display:flex;flex-direction:column;gap:var(--sp-1)}
+.row{
+  border-radius:var(--r-2);
+  background:var(--surface-card);
+  border:1px solid transparent;
+  min-height:40px;padding:6px 8px;
+}
+.row:hover{background:var(--surface-well);border-color:var(--card-border)}
+.row[aria-current="true"],.row[aria-selected="true"]{
+  background:var(--surface-well);border-color:var(--separator-strong);
+}
+.row-thumb{border-radius:var(--r-1);background:var(--surface-muted);overflow:hidden}
+.row-name{font-size:var(--fs-label);font-weight:500;letter-spacing:-.05px;text-transform:none;color:var(--text-primary)}
+.row-sub{font-size:var(--fs-meta);color:var(--text-tertiary);letter-spacing:.2px}
+.row[aria-current="true"] .row-name,.row[aria-selected="true"] .row-name{font-weight:600}
+.empty{color:var(--text-tertiary)}
+
+/* small uppercase tags */
+.kindtag{
+  height:18px;padding:0 7px;border-radius:var(--r-pill);
+  background:var(--surface-muted);
+  font-size:9px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;
+  color:var(--text-secondary);
+}
+.kindtag .ic{width:10px;height:10px}
+
+/* ── floating layers ──────────────────────────────────────────────────── */
+/* the layer itself is a focus holder, not a control: it never draws a ring */
+.pop:focus,.pop:focus-visible{outline:0;box-shadow:none}
+.pop{
+  border-radius:var(--r-4);border:1px solid var(--layer-border);
+  background:var(--surface-well);
+  padding:5px;
+}
+.pop-item{
+  border-radius:var(--r-2);min-height:30px;padding:0 var(--sp-2);
+  font-size:var(--fs-label);color:var(--text-primary);
+}
+.pop-item:hover,.pop-item:focus-visible{background:var(--surface-muted)}
+.pop-item:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
+.pop-item[aria-checked="true"]{font-weight:500}
+.pop-item[aria-checked="true"]::after{
+  content:"";width:6px;height:6px;border-radius:50%;background:var(--text-primary);margin-left:auto;
+}
+/* inside a layer, focus is the ink rule, drawn inwards so it is never clipped */
+.pop :focus-visible,.dialog :focus-visible{
+  outline:none;box-shadow:inset 0 0 0 2px var(--focus);border-radius:var(--r-2);
+}
+.pop-item.danger{color:var(--danger)}
+.pop-head{border-bottom:1px solid var(--separator);padding-bottom:var(--sp-2);margin-bottom:4px}
+.pop-label{font-size:var(--fs-section);font-weight:500;letter-spacing:var(--track-label);text-transform:uppercase;color:var(--text-tertiary)}
+
+.scrim{background:rgba(12,12,14,.44)}
+.dialog{
+  border-radius:var(--r-6);
+  background:var(--surface-well);
+  border:1px solid var(--layer-border);
+}
+.dialog-head{padding:var(--sp-4) var(--sp-4) var(--sp-2)}
+.dialog-head h2{font-size:var(--fs-title);font-weight:600;letter-spacing:-.17px}
+.dialog-sub{font-size:var(--fs-desc);color:var(--text-secondary)}
+.dialog-foot{border-top:1px solid var(--separator);background:var(--surface);border-radius:0 0 var(--r-6) var(--r-6)}
+
+/* toasts and tips */
+#toast,.toast{
+  border-radius:var(--r-pill);background:var(--text-primary);color:#fff;
+  font-size:var(--fs-desc);letter-spacing:.1px;
+}
+#tip{
+  border-radius:var(--r-1);background:var(--text-primary);color:#fff;
+  font-size:var(--fs-meta);letter-spacing:.2px;
+}
+
+/* progress + notes */
+.progress-track{height:6px;border-radius:var(--r-pill);background:var(--surface-sunken);overflow:hidden}
+.progress-fill{background:var(--accent);border-radius:var(--r-pill)}
+.note{border-radius:var(--r-2);font-size:var(--fs-desc)}
+
+/* ── canvas affordances ───────────────────────────────────────────────── */
+.sheetmeta{font-size:var(--fs-meta);letter-spacing:.3px;color:var(--text-tertiary)}
+.stage-empty{color:var(--text-secondary)}
+/* the placement guide is a rule, in ink: visible over artwork, not a coloured highlight */
+.drag-guide{background:var(--text-primary)!important}
+
+/* ── preview and script surfaces ──────────────────────────────────────── */
+.preview{background:var(--app-bg)}
+.preview-bar{
+  margin:var(--frame-inset) var(--frame-inset) 0;
+  border-radius:var(--r-7);height:44px;
+  background:var(--surface);border:1px solid var(--frame-border);
+}
+.preview-stage{padding:var(--sp-4)}
+.preview-page{border-radius:var(--r-1)}
+
+.scriptoutline,.scriptdoc{
+  border-radius:var(--r-6);background:var(--surface-card);
+  border:1px solid var(--card-border);
+}
+.scriptoutline .row[aria-current="true"]{background:var(--surface-muted);border-color:transparent}
+.scripthead{font-size:var(--fs-section);letter-spacing:var(--track-label);color:var(--text-tertiary)}
+.scriptdoc-head{border-bottom:1px solid var(--separator);height:44px}
+.scriptdoc-foot{border-top:1px solid var(--separator);background:var(--surface);border-radius:0 0 var(--r-6) var(--r-6)}
+.scriptarea{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text-primary)}
+.scriptdoc:focus-within{border-color:var(--separator-strong)}
+.scriptoutline .row{min-height:36px}
+
+/* ── welcome ──────────────────────────────────────────────────────────── */
+.tpl-card{border-radius:var(--r-5);background:var(--surface);border:1px solid var(--card-border)}
+.tpl-card:hover{background:var(--surface-card)}
+.tpl-card[aria-pressed="true"]{border-color:var(--text-primary)}
+.tpl-card[aria-pressed="true"]:hover{background:var(--surface)}
+
+/* ── scrollbars: present, quiet, and only where there is overflow ─────── */
+*{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.18) transparent}
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-thumb{background:rgba(0,0,0,.16);border-radius:var(--r-pill);border:3px solid transparent;background-clip:content-box}
+*::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.26);background-clip:content-box}
+*::-webkit-scrollbar-track{background:transparent}

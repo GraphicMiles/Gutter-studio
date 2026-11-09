@@ -4,126 +4,53 @@
 <meta charset="utf-8">
 <title>Gutter Studio</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="A comic board studio: draw pages, manga, webtoon strips, square posts and storyboard sheets, then edit every panel, character and colour.">
-<meta name="claude:viewport-fit-sides" content="cover">
-<meta name="color-scheme" content="dark">
+<meta name="description" content="Gutter Studio draws comic pages, manga, webtoon strips, square posts and storyboard sheets. Edit panels, characters, props, dialogue and colour.">
+<meta name="color-scheme" content="light">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231D1D1F'/%3E%3Crect x='8' y='11' width='3.5' height='10' rx='1' fill='white'/%3E%3Crect x='14.2' y='8' width='3.5' height='16' rx='1' fill='white'/%3E%3Crect x='20.4' y='13' width='3.5' height='6' rx='1' fill='white'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="./src/styles/index.css">
 </head>
 <body>
 <div class="app" id="app">
- <header class="bar">
+
+ <header class="appbar" id="appbar">
   <h1 class="sr-only" id="docTitle">Gutter Studio</h1>
-  <div class="mark" aria-hidden="true"><b></b><b></b><b></b><b></b></div>
-  <nav class="mbar" id="mbar" aria-label="Menu">
-   <button data-m="File" aria-haspopup="true" aria-expanded="false">File</button>
-   <button data-m="Edit" aria-haspopup="true" aria-expanded="false">Edit</button>
-   <button data-m="Page" aria-haspopup="true" aria-expanded="false">Page</button>
-   <button data-m="View" aria-haspopup="true" aria-expanded="false">View</button>
-  </nav>
-  <span class="sp"></span>
-  <button class="btn pri exp" id="exp" aria-label="Export" aria-haspopup="true" aria-expanded="false">
-   <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>Export</span>
+  <div class="brand">
+   <span class="mark" aria-hidden="true"><span><i></i><i></i><i></i></span></span>
+   <span class="wordmark">Gutter</span>
+  </div>
+  <button class="projectmenu" id="projBtn" aria-haspopup="menu" aria-expanded="false" aria-label="Project menu">
+   <span class="pname" id="projName">Gutter Studio</span>
   </button>
-  <div class="dd" id="mdrop" hidden role="menu" aria-label="Menu items"></div>
-  <div class="menu" id="menu" hidden role="menu" aria-label="Export formats"></div>
+  <span class="divider-v hide-mobile" aria-hidden="true"></span>
+  <div class="savechip" id="saveState" data-state="saved" role="status" aria-live="polite"></div>
+  <span class="sp"></span>
+  <div class="actions" id="histActions"></div>
+  <span class="sp"></span>
+  <div class="actions hide-mobile" id="viewActions"></div>
+  <div class="actions" id="mainActions"></div>
  </header>
 
- <main class="panes">
-  <nav class="rail" id="rail" aria-label="Panel tools">
-   <button data-r="page" data-tip="Add page" aria-label="Add page"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h6"/><path d="M12 18v-6"/></svg></button>
-   <span class="gap" aria-hidden="true"></span>
-   <button data-r="prev" data-tip="Move panel earlier" aria-label="Move panel earlier"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg></button>
-   <button data-r="next" data-tip="Move panel later" aria-label="Move panel later"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
-   <button data-r="dup" data-tip="Duplicate panel" aria-label="Duplicate panel"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
-   <button data-r="del" data-tip="Delete panel" aria-label="Delete panel"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
-  </nav>
+ <div class="ctxbar" id="ctxbar" role="toolbar" aria-label="Tool options"></div>
 
-  <section class="pane left" id="pLeft" aria-label="Projects, writing and script">
-   <div class="dtabs" id="dockTabs" role="tablist" aria-label="Left dock">
-    <button role="tab" id="dProjects" data-dock="projects" aria-selected="true" aria-controls="dockProjects">Projects</button>
-    <button role="tab" id="dWrite" data-dock="write" aria-selected="false" aria-controls="dockWrite" tabindex="-1">Write</button>
-    <button role="tab" id="dScript" data-dock="script" aria-selected="false" aria-controls="dockScript" tabindex="-1">Script</button>
+ <div class="work" id="work">
+  <nav class="rail" id="rail" aria-label="Tools"></nav>
+  <aside class="browser" id="browser" aria-label="Resources"></aside>
+  <main class="canvas" id="canvas" aria-label="Page canvas">
+   <div class="stage" id="stage" data-tool="select" tabindex="-1">
+    <div class="sheetwrap" id="sheetwrap"></div>
    </div>
+  </main>
+  <aside class="inspector" id="inspector" aria-label="Properties"></aside>
+ </div>
 
-   <div class="dock on" id="dockProjects" role="tabpanel" aria-labelledby="dProjects" data-d="projects">
-    <div class="plist" id="plist"></div>
-    <div class="pmeta" id="pmeta" aria-live="polite"></div>
-    <div class="tools"><button class="btn sm" id="pNew">New</button><button class="btn sm" id="pDup">Duplicate</button><button class="btn sm" id="pImp">Import</button><button class="btn sm dng" id="pDel">Delete</button></div>
-    <input type="file" id="file" accept=".json,application/json" aria-label="Import a project file" hidden>
-    <div class="stat" id="pstat" role="status"></div>
-   </div>
-
-   <div class="dock" id="dockWrite" role="tabpanel" aria-labelledby="dWrite" data-d="write" hidden>
-    <h2>Write it with Claude</h2>
-    <label class="f"><span>Story brief</span><textarea id="brief" maxlength="2000" rows="4" placeholder="A commuter finds out the cat on her head has been paying rent."></textarea></label>
-    <div class="f"><span>Format</span><div class="seg" id="gFmt" role="group" aria-label="Format"></div></div>
-    <div class="row2">
-     <label class="f"><span>Pages</span><select id="gPages"><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
-     <label class="f"><span>Panels per page</span><select id="gPanels"><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option></select></label>
-    </div>
-    <div class="f"><span>Feel</span><div class="chips" id="gGenre" role="group" aria-label="Genre"></div></div>
-    <label class="tog"><span>Keep my cast</span><input type="checkbox" id="gKeep" checked></label>
-    <label class="tog"><span>Add after existing pages</span><input type="checkbox" id="gAppend"></label>
-    <div class="tools"><button class="btn pri" id="gGo">Generate</button><button class="btn" id="gStop" hidden>Stop</button></div>
-    <div class="stat" id="gstat" role="status" aria-live="polite"></div>
-   </div>
-
-   <div class="dock" id="dockScript" role="tabpanel" aria-labelledby="dScript" data-d="script" hidden>
-    <p class="hint">Edit as plain text. Names in the script create cast members. Apply rebuilds the pages.</p>
-    <label class="f grow"><span class="sr-only">Script</span><textarea id="script" class="script" spellcheck="false" aria-label="Script"></textarea></label>
-    <div class="tools"><button class="btn sm pri" id="sApply">Apply script</button><button class="btn sm" id="sReset">Reload from board</button></div>
-    <div class="stat" id="sstat" role="status"></div>
-   </div>
-  </section>
-
-  <section class="pane mid show" id="pMid" aria-label="Board">
-   <div class="opts">
-    <div class="pages" id="pages" role="group" aria-label="Pages"></div>
-    <span class="sp"></span>
-    <label class="f"><span>Layout</span><select id="layout" aria-label="Page layout"><option value="auto">Auto</option><option value="stack">Stacked</option><option value="grid">Grid</option><option value="hero">Hero first</option></select></label>
-    <label class="tog"><span>Numbers</span><input type="checkbox" id="nums" checked></label>
-   </div>
-   <div class="doctab">
-    <input id="title" type="text" maxlength="80" aria-label="Project title" autocomplete="off">
-    <span class="sp"></span>
-    <button class="btn ghost" id="undo" aria-label="Undo" title="Undo (Ctrl+Z)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>Undo</span></button>
-    <button class="btn ghost" id="redo" aria-label="Redo" title="Redo (Ctrl+Shift+Z)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/></svg><span>Redo</span></button>
-   </div>
-   <div class="stage" id="stage" tabindex="0" role="region" aria-label="Page board"><div class="sheet" id="sheet"></div></div>
-   <div class="selbar"><span id="selTxt"></span><button class="btn pri" id="selEdit">Edit panel</button></div>
-  </section>
-
-  <section class="pane right" id="pRight" aria-label="Properties">
-   <h2 class="sr-only">Properties</h2>
-   <div class="rtop">
-    <div class="tabs" role="tablist" aria-label="Properties">
-     <button role="tab" id="tPanel" aria-selected="true" aria-controls="insp">Panel</button>
-     <button role="tab" id="tCast" aria-selected="false" aria-controls="insp" tabindex="-1">Cast</button>
-     <button role="tab" id="tStyle" aria-selected="false" aria-controls="insp" tabindex="-1">Style</button>
-    </div>
-    <div class="tabbody" id="insp" role="tabpanel" aria-labelledby="tPanel" tabindex="0"></div>
-   </div>
-   <div class="rbot">
-    <div class="dtabs" id="rowsHead"><h2 class="dtabs-title">Panels on this page</h2></div>
-    <div class="rows" id="prows" role="group" aria-label="Panels on this page"></div>
-   </div>
-  </section>
- </main>
-
- <footer class="status">
-  <span id="saved" aria-live="polite"></span>
-  <span id="sbPage"></span>
-  <span id="sbPanel"></span>
-  <span id="sbFmt"></span>
-  <span class="sp"></span>
-  <button id="zOut" aria-label="Zoom out"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
-  <button id="zVal" title="Fit page">Fit</button>
-  <button id="zIn" aria-label="Zoom in"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
- </footer>
-
- <nav class="nav" aria-label="Sections"><button id="nCreate" aria-pressed="false">Story</button><button id="nBoard" aria-pressed="true">Board</button><button id="nEdit" aria-pressed="false">Edit</button></nav>
+ <section class="pages" id="pages" aria-label="Pages"></section>
+ <footer class="status" id="status" aria-label="Status"></footer>
+ <div class="quickbar" id="quickbar" aria-label="Quick actions"></div>
+ <nav class="nav" id="nav" aria-label="Sections"></nav>
 </div>
-<div id="toast" role="status" hidden></div>
+
+<div id="layers"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 <script type="module" src="./src/app/boot.js"></script>
 </body>
 </html>

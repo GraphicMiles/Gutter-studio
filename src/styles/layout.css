@@ -1,73 +1,261 @@
-/* layout.css: the frame: menu bar, tool rail, three docks, stage, status bar, phone nav.
-   A flex frame: the bar and the status bar keep their height, the panes take what is left. */
+/* layout.css: the application frame.
+ *
+ *   header 48 · context toolbar 40 · [rail 48 | browser 240 | canvas ··· | inspector 300]
+ *   page navigator 120 · status 24
+ *
+ * The canvas takes everything left over and never scrolls the application: each region owns its
+ * own overflow, so a long inspector can never scroll the page underneath it.
+ */
 .app{
-  position:relative;display:flex;flex-direction:column;
-  height:100%;width:100%;min-height:0;background:var(--c1);
+  display:flex;flex-direction:column;
+  height:100%;width:100%;min-height:0;
+  background:var(--app-bg);
 }
+/* state changes are owned by motion.css; layout.css only says where things sit */
 
-/* ── menu bar ─────────────────────────────────────────────────────────── */
-.bar{position:relative;z-index:40;display:flex;align-items:center;gap:2px;height:var(--bar-h);padding:0 6px;background:var(--c1)}
-.mark{display:flex;flex-wrap:wrap;gap:2px;width:16px;height:16px;margin:0 10px 0 4px;flex:none}
-.mark b{width:7px;height:7px;background:var(--ink);border-radius:1px;transition:background var(--t-fast) linear}
-.mark b:first-child{background:var(--acc-hi)}
-.mbar{display:flex;height:100%}
-.mbar button{border-radius:var(--r);padding:0 10px;height:100%;color:var(--ink);transition:background var(--t-fast) linear}
-.mbar button:hover,.mbar button[aria-expanded=true]{background:var(--c3)}
-.bar .exp{margin-left:6px}
-
-/* ── the three docks ──────────────────────────────────────────────────── */
-.panes{
-  display:flex;gap:1px;flex:1 1 auto;min-height:0;background:var(--c0);
+/* ── application header ───────────────────────────────────────────────── */
+.appbar{
+  display:flex;align-items:center;gap:var(--sp-1);
+  height:var(--h-header);flex:none;padding:0 var(--sp-2) 0 var(--sp-3);
+  position:relative;z-index:30;
 }
-.pane{min-height:0;overflow:auto;overscroll-behavior:contain;background:var(--c2)}
-.pane.mid{position:relative;display:flex;flex-direction:column;overflow:hidden;background:var(--c0);flex:1 1 0;min-width:0}
-.pane.right{display:flex;flex-direction:column;gap:1px;overflow:hidden;background:var(--c0);flex:0 0 308px;min-width:0}
+.brand{display:flex;align-items:center;gap:var(--sp-2);padding-right:var(--sp-2);min-width:0}
+.brand .mark{
+  width:22px;height:22px;flex:none;border-radius:var(--r-1);
+  background:var(--text-primary);display:flex;align-items:center;justify-content:center;
+}
+.brand .mark span{display:flex;gap:2.5px}
+.brand .mark i{display:block;width:3px;border-radius:1px;background:#fff}
+.brand .mark i:nth-child(1){height:9px}
+.brand .mark i:nth-child(2){height:13px}
+.brand .mark i:nth-child(3){height:7px}
 
-.rail{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;background:var(--c2);flex:0 0 44px}
-.rail .gap{height:10px}
-.rail button{position:relative;width:30px;height:30px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;
-  transition:background var(--t-fast) linear,color var(--t-fast) linear}
-.rail button:hover{background:var(--c3)}
-.rail button:active{background:var(--acc);color:var(--on-acc)}
+.projectmenu{
+  display:flex;align-items:center;gap:var(--sp-2);min-width:0;max-width:340px;
+  height:32px;padding:0 var(--sp-2);border-radius:var(--r-1);
+}
+.projectmenu:hover{background:var(--surface-hover)}
+.projectmenu .pname{
+  font-size:var(--fs-title);font-weight:600;line-height:1.2;
+  max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.projectmenu .ic{color:var(--text-secondary)}
+.divider-v{width:1px;height:20px;flex:none;background:var(--separator);margin:0 var(--sp-2)}
 
-/* left dock: a tab strip over one scrolling panel */
-.pane.left{display:flex;flex-direction:column;overflow:hidden;flex:0 0 268px;min-width:0}
-.dock{flex:1;min-height:0;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:10px}
-.dock.grow>*{min-height:0}
-/* a well that holds the whole panel should fill it: a 200px box in a 700px dock reads as broken */
-.dock>.f.grow{flex:1 1 auto;min-height:0}
-.dock>.f.grow textarea{flex:1 1 auto;height:100%}
+/* save state: icon + words, so it is never colour alone */
+.savechip{display:flex;align-items:center;gap:6px;height:26px;padding:0 var(--sp-2);border-radius:var(--r-1);
+  font-size:var(--fs-desc);color:var(--text-secondary);white-space:nowrap}
+.savechip .ic{width:14px;height:14px}
+.savechip[data-state="saving"]{color:var(--text-secondary)}
+.savechip[data-state="saved"]{color:var(--success)}
+.savechip[data-state="error"]{color:var(--danger);background:var(--danger-soft)}
+.savechip button{height:20px;padding:0 6px;border-radius:4px;font-size:var(--fs-meta);font-weight:600;
+  color:var(--danger);text-decoration:underline}
+.savechip button:hover{background:#fff}
 
-/* right dock: properties on top, the page's panel list pinned underneath */
-.rtop{flex:1;min-height:0;overflow:auto;background:var(--c2)}
-.rbot{flex:none;height:196px;display:flex;flex-direction:column;background:var(--c2)}
-/* the pinned list is a separate region, so it gets a rule instead of a sliced control */
-.rbot .dtabs{border-top:1px solid var(--in-edge)}
+/* ── context toolbar ──────────────────────────────────────────────────── */
+.ctxbar{
+  display:flex;align-items:center;gap:var(--sp-2);
+  height:var(--h-ctx);flex:none;padding:0 var(--sp-3);
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:none;position:relative;z-index:20;
+}
+.ctxbar::-webkit-scrollbar{display:none}
+.ctxbar .grp{display:flex;align-items:center;gap:6px;flex:none}
+.ctxbar .lbl{font-size:var(--fs-label);color:var(--text-secondary);white-space:nowrap}
+.ctxbar .sep{width:1px;height:18px;flex:none;background:var(--separator);margin:0 var(--sp-1)}
 
-/* ── the board ────────────────────────────────────────────────────────── */
-.opts{display:flex;align-items:center;gap:12px;height:34px;padding:0 8px;background:var(--c2);flex:none;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
-.opts::-webkit-scrollbar{display:none}
-.doctab{display:flex;align-items:center;gap:2px;height:var(--tab-h);padding-right:6px;background:var(--c1);flex:none}
-.doctab .sp{flex:1}
-.stage{flex:1;min-height:0;overflow:auto;display:flex;padding:22px;background:var(--c0);position:relative;scroll-behavior:smooth}
-.sheet{margin:auto;flex:none;background:var(--paper);transition:width var(--t-slow) var(--e-move)}
-.sheet svg{width:100%;height:auto;display:block}
-.sheet [data-pid]{cursor:pointer}
-.selbar{display:none;flex:none}
+/* ── work area ────────────────────────────────────────────────────────── */
+.work{display:flex;flex:1;min-height:0;min-width:0}
 
-/* ── status bar ───────────────────────────────────────────────────────── */
-.status{display:flex;align-items:center;gap:14px;height:26px;padding:0 10px;background:var(--c1);color:var(--muted);font-size:var(--fs-label);flex:none}
-.status button{border-radius:var(--r);height:18px;min-width:20px;padding:0 5px;color:var(--ink);display:flex;align-items:center;justify-content:center;
-  transition:background var(--t-fast) linear}
-.status button:hover{background:var(--c3)}
-.status .i{width:12px;height:12px}
-#saved{display:inline-flex;align-items:center;gap:6px}
-#saved .short{display:none}
-#saved .full{white-space:nowrap}
-#saved::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none;transition:background var(--t-fast) linear}
-#saved[data-state=saving]::before{background:var(--acc-hi)}
-#saved[data-state=unsaved]::before{background:var(--warn)}
+/* tool rail */
+.rail{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  width:var(--w-rail);flex:none;padding:var(--sp-2) 0;
+}
+.tool{
+  position:relative;width:36px;height:36px;border-radius:var(--r-1);
+  display:flex;align-items:center;justify-content:center;color:var(--text-secondary);
+}
+.tool .ic{width:19px;height:19px}
+.tool:hover{background:var(--surface-hover);color:var(--text-primary)}
+.tool[aria-pressed="true"]{background:var(--surface-well);box-shadow:inset 0 0 0 1px var(--card-border);color:var(--text-primary)}
+.tool[aria-pressed="true"]::before{
+  content:"";position:absolute;left:9px;right:9px;bottom:3px;height:2px;border-radius:1px;
+  background:var(--text-primary)}
+.tool:disabled{color:var(--text-tertiary);opacity:.55;cursor:default}
+.tool:disabled:hover{background:none;color:var(--text-tertiary)}
+.rail .rail-sep{width:24px;height:1px;background:var(--separator);margin:var(--sp-2) 0}
 
-/* ── phone navigation ─────────────────────────────────────────────────── */
+/* resource browser */
+.browser{
+  display:flex;flex-direction:column;min-height:0;
+  width:var(--w-browser);flex:none;
+}
+.browser-head{flex:none;display:flex;flex-direction:column;gap:var(--sp-2);padding:var(--sp-3) var(--sp-3) var(--sp-2)}
+.browser-title{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2)}
+.browser-title h2{font-size:var(--fs-panel);font-weight:600;line-height:var(--lh-tight)}
+.browser-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:var(--sp-2) var(--sp-3) var(--sp-4)}
+.browser-foot{flex:none;padding:var(--sp-2) var(--sp-3)}
+
+/* canvas */
+.canvas{position:relative;display:flex;flex-direction:column;flex:1;min-width:0;min-height:0}
+.stage{
+  position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;
+  padding:var(--sp-6);display:flex;
+  touch-action:pan-x pan-y;
+}
+/* the script workspace is a document, not a canvas: it takes the whole surface */
+.stage.is-script{padding:var(--sp-4);overflow:hidden}
+.stage.is-script .sheetwrap{flex:1;margin:0;min-width:0;min-height:0;height:100%;align-items:stretch}
+.stage.panning{cursor:grabbing}
+.stage[data-tool="pan"]{cursor:grab}
+.stage[data-tool="place"]{cursor:crosshair}
+.sheetwrap{margin:auto;display:flex;flex-direction:column;align-items:center;gap:var(--sp-2);flex:none}
+.sheet{
+  position:relative;flex:none;background:var(--paper);
+  border-radius:var(--r-1);
+  border:1px solid var(--card-border);
+}
+.sheet svg{width:100%;height:auto;display:block;border-radius:var(--r-1)}
+.sheet [data-hit]{cursor:pointer}
+.stage[data-tool="place"] .sheet [data-hit]{cursor:crosshair}
+.sheetmeta{font-size:var(--fs-meta);color:var(--text-tertiary);text-align:center;user-select:none}
+.stage-empty{
+  margin:auto;max-width:320px;text-align:center;display:flex;flex-direction:column;
+  align-items:center;gap:var(--sp-2);color:var(--text-secondary);
+}
+.stage-empty .ic{width:28px;height:28px;color:var(--text-tertiary)}
+
+/* panel resize grips */
+.grip{
+  width:5px;flex:none;cursor:col-resize;position:relative;background:var(--surface);
+  margin:0 -3px;z-index:4;
+}
+.grip::after{content:"";position:absolute;top:0;bottom:0;left:2px;width:1px;background:transparent;transition:background var(--t-2) linear}
+.grip:hover::after,.grip.dragging::after{background:var(--separator-strong)}
+
+/* inspector */
+.inspector{
+  display:flex;flex-direction:column;min-height:0;
+  width:var(--w-inspector);flex:none;
+}
+.inspector-head{
+  flex:none;display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);
+  height:40px;padding:0 var(--sp-2) 0 var(--sp-3);
+}
+.inspector-head .sel-name{font-size:var(--fs-label);font-weight:600;color:var(--text-secondary);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inspector-head .sel-name b{color:var(--text-primary);font-weight:600}
+.inspector-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:var(--sp-6)}
+
+/* ── page navigator ───────────────────────────────────────────────────── */
+.pages{
+  flex:none;display:flex;flex-direction:column;
+}
+.pages-head{
+  display:flex;align-items:center;gap:var(--sp-2);height:36px;flex:none;
+  padding:0 var(--sp-2) 0 var(--sp-3);
+}
+.pages-head h2{font-size:var(--fs-label);font-weight:600;color:var(--text-secondary)}
+.pages-head .count{font-size:var(--fs-label);color:var(--text-tertiary)}
+.filmstrip{
+  display:flex;align-items:flex-start;gap:var(--sp-2);
+  flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;
+  padding:0 var(--sp-3) var(--sp-2);scroll-behavior:smooth;
+}
+.thumb{
+  position:relative;flex:none;display:flex;flex-direction:column;gap:4px;align-items:center;
+  width:72px;border-radius:var(--r-2);padding:3px;
+}
+.thumb:hover{background:var(--surface-hover)}
+.thumb .thumb-img{
+  width:100%;height:100%;object-fit:contain;border-radius:var(--r-1);background:var(--paper);
+  box-shadow:0 0 0 1px var(--card-border);display:block;
+}
+.thumb .frame{width:100%;height:56px;display:flex;align-items:center;justify-content:center;padding:2px}
+.thumb-n{font-size:var(--fs-meta);color:var(--text-tertiary);line-height:1}
+.thumb[aria-current="true"]{background:var(--surface-well)}
+.thumb[aria-current="true"] .thumb-img{box-shadow:0 0 0 1px var(--text-primary)}
+.thumb[aria-current="true"] .thumb-n{color:var(--text-primary);font-weight:600}
+.thumb.dragging{opacity:.4}
+.thumb.drop-before::before,.thumb.drop-after::after{
+  content:"";position:absolute;top:2px;bottom:14px;width:2px;border-radius:1px;background:var(--text-primary)}
+.thumb.drop-before::before{left:-5px}
+.thumb.drop-after::after{right:-5px}
+.thumb-add{display:flex;align-items:center;justify-content:center;width:72px;height:72px;flex:none;
+  border-radius:var(--r-1);color:var(--text-secondary);background:var(--surface-muted)}
+.thumb-add:hover{background:var(--surface-hover);color:var(--text-primary)}
+
+/* ── status strip ─────────────────────────────────────────────────────── */
+.status{
+  display:flex;align-items:center;gap:var(--sp-3);height:var(--h-status);flex:none;
+  padding:0 var(--sp-3);
+  font-size:var(--fs-meta);color:var(--text-secondary);
+}
+.status .sitem{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.status .ic{width:12px;height:12px}
+.status .zoomctl{display:flex;align-items:center;gap:2px}
+.status button{height:18px;min-width:20px;padding:0 5px;border-radius:4px;color:var(--text-secondary);
+  display:inline-flex;align-items:center;justify-content:center}
+.status button:hover{background:var(--surface-hover);color:var(--text-primary)}
+.status .zoomval{min-width:42px;text-align:center;font-weight:500;color:var(--text-primary)}
+
+/* ── mobile bottom navigation (desktop: absent) ───────────────────────── */
 .nav{display:none}
-.nav button{flex:1 1 0}
+
+/* collapsed panels: the canvas takes the space, and the rail keeps the restore control */
+.browser[hidden],.inspector[hidden],.pages[hidden]{display:none!important}
+
+/* the canvas pane switch on small screens */
+.mobile-only{display:none}
+
+/* ── script workspace: the document is the work surface ───────────────── */
+.scriptwrap{
+  display:grid;grid-template-columns:minmax(0,264px) minmax(0,1fr);gap:var(--sp-3);
+  flex:1 1 auto;min-height:0;width:100%;max-width:1200px;margin:0 auto;
+}
+.scriptoutline{
+  background:var(--surface);border:1px solid var(--separator);border-radius:var(--r-lg);
+  padding:var(--sp-3);overflow:auto;min-height:0;
+  display:flex;flex-direction:column;gap:var(--sp-2);
+}
+.scripthead{
+  font-size:var(--fs-meta);font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--text-tertiary);margin:0 0 var(--sp-1) 0;
+}
+.scriptoutline ul{list-style:none;margin:0;padding:0}
+.scriptoutline .row{width:100%;min-height:34px}
+.scriptoutline .row[aria-current="true"]{
+  background:var(--surface-muted);box-shadow:inset 2px 0 0 var(--text-primary);
+}
+.scriptoutline .row[aria-current="true"] .row-name{color:var(--text-primary);font-weight:600}
+.scriptoutline .row-name{font-size:var(--fs-desc);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scriptdoc{
+  background:var(--surface);border:1px solid var(--separator);border-radius:var(--r-lg);
+  display:flex;flex-direction:column;min-height:0;overflow:hidden;
+}
+.scriptdoc-head{
+  display:flex;align-items:center;gap:var(--sp-2);height:40px;padding:0 var(--sp-3) 0 var(--sp-4);
+  border-bottom:1px solid var(--separator);flex:0 0 auto;
+}
+.scriptdoc-head .scripthead{margin:0}
+.scriptdoc-foot{
+  display:flex;align-items:center;gap:var(--sp-2);min-height:44px;padding:var(--sp-2) var(--sp-3);
+  border-top:1px solid var(--separator);flex:0 0 auto;
+}
+.scriptdoc-foot .note{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scriptarea{
+  flex:1 1 auto;min-height:0;width:100%;border:0;background:transparent;resize:none;
+  padding:var(--sp-3) var(--sp-4);font-size:13px;line-height:1.75;color:var(--text-primary);
+  tab-size:2;
+}
+.scriptarea:focus{outline:none}
+.scriptdoc:focus-within{border-color:var(--separator-strong)}
+/* the outline is a convenience: it goes away before it can squeeze the document */
+@media (max-width:1199px){
+  .scriptwrap{grid-template-columns:minmax(0,1fr)}
+  .scriptoutline{display:none}
+}
+@media (max-height:600px){
+  .scriptdoc-head{height:34px}
+}

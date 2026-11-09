@@ -1,12 +1,20 @@
+/* core/dom.js: the two DOM helpers everything shares. */
+const $ = (sel, root) => (root || document).querySelector(sel);
+const $$ = (sel, root) => [...(root || document).querySelectorAll(sel)];
 
-/* core/dom.js: generated from the single-file build, code unchanged */
-const $=s=>document.querySelector(s);
-function toast(t){const e=$('#toast');if(!e)return;
- e.textContent=t;e.hidden=false;
- /* next frame, so the transition has a state to leave from */
- requestAnimationFrame(()=>e.classList.add('on'));
- clearTimeout(toast.t);
- toast.t=setTimeout(()=>{e.classList.remove('on');setTimeout(()=>{e.hidden=true},220)},2600)}
+/* A transient message. It reports an outcome that already happened; it is never used to stand in
+   for persistent state such as a failed save, which stays in the header until resolved. */
+function toast(message, tone) {
+  const el = $('#toast');
+  if (!el) return;
+  el.textContent = message;
+  el.setAttribute('data-tone', tone === 'error' ? 'error' : 'info');
+  el.classList.add('on');
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => {
+    el.classList.remove('on');
+    setTimeout(() => { el.textContent = ''; }, 260);
+  }, tone === 'error' ? 4200 : 2800);
+}
 
-export { $, toast };
-
+export { $, $$, toast };

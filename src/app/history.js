@@ -11,7 +11,15 @@ const HIST={u:[],r:[],key:'',t:0};
 function snap(){return JSON.stringify(APP.P)}
 function commit(key){ // call BEFORE mutating
  const now=Date.now();if(!(key&&key===HIST.key&&now-HIST.t<900)){HIST.u.push(snap());if(HIST.u.length>80)HIST.u.shift();HIST.r=[]}HIST.key=key||'';HIST.t=now}
-function restore(json){const keepSel=APP.selId;const old=APP.P;APP.P=validate(JSON.parse(json));APP.P.id=old.id;const i=APP.S.projects.findIndex(p=>p.id===old.id);APP.S.projects[i]=APP.P;APP.pageIdx=Math.min(APP.pageIdx,APP.P.pages.length-1);if(!findPanel(keepSel))APP.selId=null;scheduleSave()}
+function restore(json){const keepSel=APP.selId;const old=APP.P;APP.P=validate(JSON.parse(json));APP.P.id=old.id;const i=APP.S.projects.findIndex(p=>p.id===old.id);if(i>=0)APP.S.projects[i]=APP.P;APP.pageIdx=Math.min(APP.pageIdx,APP.P.pages.length-1);
+ if(!findPanel(keepSel)){APP.selId=null;APP.sel={kind:'page'}}
+ else if(APP.sel&&APP.sel.kind!=='page'&&APP.sel.kind!=='cast'){
+   const p=findPanel(APP.sel.pid);
+   if(!p){APP.sel={kind:'page'};APP.selId=null}
+   else if(APP.sel.kind==='bubble'&&(APP.sel.i>=p.bubbles.length)){APP.sel={kind:'panel',pid:p.id};APP.selId=p.id}
+   else if(APP.sel.kind==='char'&&(APP.sel.i>=p.who.length)){APP.sel={kind:'panel',pid:p.id};APP.selId=p.id}
+ }
+ scheduleSave()}
 function undo(){if(!HIST.u.length)return;HIST.r.push(snap());restore(HIST.u.pop());HIST.key='';paint('all')}
 function redo(){if(!HIST.r.length)return;HIST.u.push(snap());restore(HIST.r.pop());HIST.key='';paint('all')}
 function touch(){APP.P.t=Date.now();scheduleSave()}

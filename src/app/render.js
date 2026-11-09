@@ -1,246 +1,170 @@
-import { esc } from '../core/util.js';
 import { $ } from '../core/dom.js';
-import { pageSvg } from '../page/render.js';
-import { toScript } from '../model/script.js';
-import { APP, on } from './store.js';
-import { HIST, curPage, setRenderer } from './history.js';
-import { saveLocal, scheduleSave } from './persist.js';
-import { renderInsp } from './inspector.js';
-import { motionPlay, motionTween } from '../ui/motion.js';
+import { esc } from '../core/util.js';
 import { icon } from '../ui/icons.js';
+import { openMenu } from '../ui/layers.js';
+import { APP, call, on } from './store.js';
+import { HIST, curPage, setRenderer } from './history.js';
+import { renderHeader } from './header.js';
+import { renderToolbar } from './toolbar.js';
+import { renderRail } from './rail.js';
+import { renderBrowser } from './browser.js';
+import { fitView, renderCanvas, zoomStep, zoomStep as _zs } from './canvas.js';
+import { renderInspector } from './inspector.js';
+import { renderPages } from './pages.js';
+import { renderScript } from './scriptview.js';
+import { isMobile, navHtml } from './shell.js';
+import { deletePanel, duplicatePanel, movePanel, selectionKind, selectionPanel, selPanel } from './actions.js';
 
-/* app/render.js: everything that writes to the screen.
+/* app/render.js: the one place that decides what gets repainted.
  *
- * The board is the only expensive redraw, so it is the only thing with a debounce; the docks,
- * the status bar and the panel list are cheap strings. Reveals are opt-in: a keystroke must not
- * animate, a page turn must.
+ * Everything cheap (header, toolbar, status, quick actions) is a string rebuild. The expensive
+ * things — the page and the page thumbnails — are only rebuilt when their inputs changed, which is
+ * what the flags at the bottom of this file are about. A keystroke in a text field must never
+ * rebuild the whole workspace.
  */
 
-
-
-
-
-
-
-
-
-
-
-const PANES = { create: 'pLeft', board: 'pMid', edit: 'pRight' };
-const PANE_ORDER = ['create', 'board', 'edit'];
-
-/* project id → {page, panel}: coming back should feel like coming back */
-const MEMO = {};
-function openProject(id) {
-  const prev = APP.P ? APP.P.id : null;
-  if (prev && prev !== id) MEMO[prev] = { page: APP.pageIdx, panel: APP.selId };
-  const p = APP.S.projects.find(p => p.id === id) || APP.S.projects[0];
-  APP.P = p; APP.S.cur = p.id; HIST.u = []; HIST.r = []; HIST.key = '';
-  const m = MEMO[p.id];
-  APP.pageIdx = m && p.pages[m.page] ? m.page : 0;
-  const pg = p.pages[APP.pageIdx];
-  APP.selId = (m && pg.panels.some(x => x.id === m.panel)) ? m.panel : pg.panels[0].id;
-  APP.castSel = p.cast[0].id;
-  saveLocal();
-  renderAll();
-  syncScript();
-}
-function addProject(p) {
-  APP.S.projects.unshift(p);
-  if (APP.S.projects.length > 40) APP.S.projects.pop();
-  openProject(p.id);
-  scheduleSave();
-}
-
-/* ── the head: title, history, document name ──────────────────────────── */
-function renderHead() {
-  const t = $('#title');
-  if (document.activeElement !== t) t.value = APP.P.title;
-  $('#undo').disabled = !HIST.u.length;
-  $('#redo').disabled = !HIST.r.length;
-  const name = APP.P.title || 'Untitled story';
-  document.title = name + ': Gutter Studio';
-  const h = $('#docTitle');
-  if (h) h.textContent = name;
-}
-
-/* ── the left dock ────────────────────────────────────────────────────── */
-function renderProjects() {
-  $('#plist').innerHTML = APP.S.projects.map(p =>
-    `<div class="pitem${p.id === APP.P.id ? ' on' : ''}"><button class="name" data-pid="${p.id}" aria-current="${p.id === APP.P.id}">${esc(p.title)}</button><small>${p.pages.length}p</small></div>`
-  ).join('');
-  /* A list of one leaves the dock empty. This reports the open project from its own data:
-     format, page and panel counts, and cast, so the pane says something useful. */
-  const meta = $('#pmeta');
-  if (!meta) return;
-  const P = APP.P;
-  const panels = P.pages.reduce((a, pg) => a + pg.panels.length, 0);
-  const fmt = P.style.fmt.charAt(0).toUpperCase() + P.style.fmt.slice(1);
-  meta.innerHTML = `<h2>This project</h2>
-    <dl>
-      <div><dt>Format</dt><dd>${esc(fmt)}</dd></div>
-      <div><dt>Pages</dt><dd>${P.pages.length}</dd></div>
-      <div><dt>Panels</dt><dd>${panels}</dd></div>
-      <div><dt>Cast</dt><dd>${P.cast.length}</dd></div>
-    </dl>`;
-}
-
-/* ── the page strip ───────────────────────────────────────────────────── */
-function renderPages() {
-  const n = APP.P.pages.length;
-  $('#pages').innerHTML =
-    APP.P.pages.map((_, i) => `<button class="pg" data-pg="${i}" aria-pressed="${i === APP.pageIdx}" aria-label="Page ${i + 1}">${i + 1}</button>`).join('') +
-    `<button class="btn sm icon" data-act="addpage" aria-label="Add page" data-tip="Add page">${icon('plus')}</button>` +
-    (n > 1 ? `<button class="btn sm ghost icon" data-act="pgl" aria-label="Move page earlier" data-tip="Move page earlier">${icon('left')}</button><button class="btn sm ghost icon" data-act="pgr" aria-label="Move page later" data-tip="Move page later">${icon('right')}</button><button class="btn sm ghost dng" data-act="delpage" aria-label="Delete page">Del</button>` : '');
-  const lay = $('#layout');
-  lay.value = curPage().layout;
-  lay.disabled = APP.P.style.fmt === 'webtoon' || APP.P.style.fmt === 'storyboard';
-}
-
-/* ── the panel list under the properties ──────────────────────────────── */
-function renderRows() {
-  const pg = curPage();
-  $('#prows').innerHTML = pg.panels.map((p, i) => {
-    const line = (p.bubbles[0] && p.bubbles[0].text) || p.caption || p.sfx.text || p.setting;
-    return `<button type="button" class="row" data-sel="${p.id}" aria-pressed="${p.id === APP.selId}"><b>${i + 1}</b><span>${esc(line)}</span><small>${esc(p.shot)}</small></button>`;
-  }).join('');
-}
-
-/* ── the status bar ───────────────────────────────────────────────────── */
-const FMT_LABEL = { comic: 'Comic', manga: 'Manga', webtoon: 'Webtoon', square: 'Square', storyboard: 'Boards' };
+/* ── status strip ─────────────────────────────────────────────────────── */
 function renderStatus() {
+  const root = $('#status');
+  if (!root) return;
+  const p = selectionPanel();
+  const kind = selectionKind();
   const pg = curPage();
-  const i = pg.panels.findIndex(p => p.id === APP.selId);
-  const sbP = $('#sbPage'), sbN = $('#sbPanel'), sbF = $('#sbFmt');
-  if (sbP) sbP.textContent = `Page ${APP.pageIdx + 1} / ${APP.P.pages.length}`;
-  if (sbN) sbN.textContent = i < 0 ? '' : `Panel ${i + 1} / ${pg.panels.length}`;
-  if (sbF) sbF.textContent = `${FMT_LABEL[APP.P.style.fmt] || 'Comic'}, ${pg.panels.length} panels`;
-  const sel = $('#selTxt');
-  if (sel) sel.textContent = i < 0 ? 'No panel selected' : `Panel ${i + 1} of ${pg.panels.length}`;
+  const idx = p ? pg.panels.findIndex(x => x.id === p.id) + 1 : 0;
+  const pct = Math.round((APP.view.zoom || 1) * 100);
+  const sel = kind === 'page' ? 'No selection'
+    : kind === 'panel' ? `Panel ${idx} of ${pg.panels.length}`
+      : kind === 'char' ? 'Character selected'
+        : kind === 'bubble' ? 'Bubble selected'
+          : kind === 'prop' ? 'Prop selected'
+            : 'Character selected';
+  root.innerHTML = `
+    <span class="sitem">${icon('fileText')}Page ${APP.pageIdx + 1} of ${APP.P.pages.length}</span>
+    <span class="sitem">${icon('square')}${esc(sel)}</span>
+    <span class="sp"></span>
+    <span class="sitem zoomctl">
+      <button type="button" data-zoom="out" aria-label="Zoom out" data-tip="Zoom out  Ctrl+−">${icon('minus')}</button>
+      <button type="button" class="zoomval" data-zoom="fit" data-tip="Fit page  Ctrl+0" aria-label="Zoom ${pct}%. Fit page">${pct}%</button>
+      <button type="button" data-zoom="in" aria-label="Zoom in" data-tip="Zoom in  Ctrl++">${icon('plus')}</button>
+      <button type="button" data-zoom="actual" data-tip="Actual size">100%</button>
+    </span>`;
 }
 
-/* ── the board ────────────────────────────────────────────────────────── */
-let boardTimer = 0, lastPage = -1, lastProj = null, lastSel = null, lastDims = null;
+/* ── mobile contextual quick actions ──────────────────────────────────── */
+function renderQuickbar() {
+  const root = $('#quickbar');
+  if (!root) return;
+  if (!isMobile()) { root.innerHTML = ''; return; }
 
-/* Fit the sheet to the space it actually has, then apply the person's zoom on top.
-   Runs after every render and whenever the stage itself changes size. */
-function fitSheet(animate) {
-  const sh = $('#sheet'), st = $('#stage');
-  if (!sh || !st || !lastDims) return;
-  const aw = st.clientWidth, ah = st.clientHeight;
-  if (!aw) return;
-  const pad = 44;
-  const fitW = Math.min(aw - pad, lastDims.w);
-  let w = fitW;
-  if (APP.P.style.fmt !== 'webtoon') {
-    /* Fitting the whole page is the right default, but on a short screen (a phone in landscape)
-       it shrinks the art to a stamp. Below half the width fit, fit the width and let the page
-       scroll instead: readable beats entirely visible. */
-    const fitH = (ah - pad) * lastDims.w / lastDims.h;
-    if (fitH >= fitW * 0.55) w = Math.min(fitW, fitH);
+  /* an armed placement takes over the strip: it says what is about to be placed, and how to stop */
+  if (APP.place) {
+    const what = APP.place.kind === 'cast' ? 'character' : APP.place.kind;
+    root.innerHTML = `<span class="qname" data-place-prompt>Tap a panel to place this ${esc(what)}</span>
+      <span class="sep"></span>
+      <button type="button" class="iconbtn" data-quick="cancel" aria-label="Cancel placing" data-tip="Cancel">${icon('x')}</button>`;
+    root.onclick = e => { if (e.target.closest('[data-quick="cancel"]')) call('clearPlacement'); };
+    return;
   }
-  w = Math.max(180, Math.floor(w)) * (APP.zoom || 1);
-  if (animate && !(window.matchMedia && matchMedia('(prefers-reduced-motion:reduce)').matches)) {
-    const from = parseFloat(sh.style.width) || w;
-    motionTween(from, Math.round(w), 240, v => { sh.style.width = Math.round(v) + 'px'; });
+
+  const kind = selectionKind();
+  const p = selectionPanel();
+  const label = kind === 'page' ? 'No selection'
+    : kind === 'panel' ? 'Panel' : kind === 'char' ? 'Character' : kind === 'bubble' ? 'Bubble' : kind === 'prop' ? 'Prop' : 'Character';
+  const acts = [];
+  if (kind === 'panel' || kind === 'char' || kind === 'bubble' || kind === 'prop') {
+    if (p) {
+      acts.push(['bubble', 'messageSquare', 'Add bubble', () => call('addBubble', p)]);
+      acts.push(['dup', 'copy', 'Duplicate', () => duplicatePanel(p)]);
+      acts.push(['edit', 'penLine', 'Edit', () => call('openDestination', 'edit')]);
+      acts.push(['del', 'trash2', 'Delete', () => (kind === 'panel' ? deletePanel(p) : call('openDestination', 'edit'))]);
+    }
   } else {
-    sh.style.width = Math.round(w) + 'px';
+    acts.push(['add', 'plus', 'Add', () => call('openDestination', 'add')]);
+    acts.push(['pages', 'layers', 'Pages', () => call('openDestination', 'pages')]);
   }
-  const z = $('#zVal');
-  if (z) {
-    const pct = Math.round((APP.zoom || 1) * 100) + '%';
-    if (z.dataset.pct !== pct) {
-      z.dataset.pct = pct;
-      z.textContent = pct;
-      z.setAttribute('aria-label', `Zoom ${pct}. Reset to fit`);
-      z.title = `Zoom ${pct}: click to fit the page`;
-      motionPlay(z, 'bump', 170);
-    }
-  }
+  root.innerHTML = `<span class="qname">${esc(label)}</span><span class="sep"></span>` +
+    acts.map(([id, ic, name, fn]) => `<button type="button" class="iconbtn" data-quick="${id}" aria-label="${name}" data-tip="${name}">${icon(ic)}</button>`).join('');
+  root.onclick = e => {
+    const b = e.target.closest('[data-quick]');
+    if (!b) return;
+    const hit = acts.find(a => a[0] === b.dataset.quick);
+    if (hit) hit[3]();
+  };
 }
 
-function renderBoard(animate) {
-  renderPages();
-  const hadFocus = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('pnl-hit');
-  const png = pageSvg(APP.P, APP.pageIdx, { sel: APP.selId, nums: APP.showNums, uid: 'b', ui: true });
-  const sh = $('#sheet');
-  sh.innerHTML = png.svg;
-  lastDims = { w: png.w, h: png.h };
+/* ── nav state ────────────────────────────────────────────────────────── */
+function renderNav() {
+  const nav = $('#nav');
+  if (!nav) return;
+  nav.innerHTML = navHtml();
+}
 
-  /* turn the page only when the page (or the project) changed: never on a keystroke */
-  const moved = APP.pageIdx !== lastPage || APP.P.id !== lastProj;
-  const picked = APP.selId !== lastSel;
-  lastPage = APP.pageIdx; lastProj = APP.P.id; lastSel = APP.selId;
-  if (moved && animate !== false) motionPlay(sh, 'turn', 340);
-  else if (picked) motionPlay(sh, 'sel-new', 200);
-
-  if (hadFocus) {
-    const again = sh.querySelector('.pnl-hit[data-pid="' + APP.selId + '"]');
-    if (again) again.focus({ preventScroll: true });
-  }
-  renderRows();
+/* ── everything ───────────────────────────────────────────────────────── */
+function renderChrome() {
+  renderHeader();
+  renderToolbar();
+  renderRail();
+  renderBrowser();
+  renderInspector();
   renderStatus();
-  fitSheet(animate === true);
+  renderNav();
+  renderQuickbar();
 }
 
-function renderAll() {
-  renderHead(); renderProjects(); renderBoard(false); renderInsp(); syncScript(); renderStatus();
-}
-function syncScript(soft) {
-  const t = $('#script');
-  if (soft && document.activeElement === t) return;
-  t.value = toScript(APP.P);
-  const s = $('#sstat'); if (s) s.textContent = '';
+function renderBoard(opts) {
+  if (APP.workspace === 'script') renderScript();
+  else renderCanvas(opts);
 }
 
-/* ── pane and selection ───────────────────────────────────────────────── */
-let lastPane = null;
-function setPane(n, opts) {
-  const id = PANES[n];
-  if (!id) return;
-  const from = lastPane ? PANE_ORDER.indexOf(lastPane) : PANE_ORDER.indexOf('board');
-  const to = PANE_ORDER.indexOf(n);
-  ['pLeft', 'pMid', 'pRight'].forEach(pid => {
-    const el = $('#' + pid);
-    const on = pid === id;
-    const was = el.classList.contains('show');
-    el.classList.toggle('show', on);
-    if (on && !was && !(opts && opts.quiet)) {
-      motionPlay(el, to > from ? 'slide-r' : to < from ? 'slide-l' : 'slide-b', 280);
-    }
-  });
-  [['nCreate', 'create'], ['nBoard', 'board'], ['nEdit', 'edit']].forEach(([i, k]) => {
-    const b = $('#' + i); if (b) b.setAttribute('aria-pressed', String(k === n));
-  });
-  lastPane = n;
-  APP.pane = n;
-  if (n === 'board') renderBoard(false);
-}
-const isNarrow = () => matchMedia('(max-width:860px)').matches;
-
-function selectPanel(id, opts) {
-  if (!id) return;
-  APP.selId = id;
-  APP.tab = 'panel';
-  renderBoard(true);
-  renderInsp(opts);
+function renderAll(opts) {
+  renderChrome();
+  renderBoard(opts);
+  if (!isMobile()) renderPages();
 }
 
-/* history never imports the UI: it calls this painter after every mutation. */
+function renderAfterEdit(opts) {
+  /* history hands us the options the caller passed to edit() */
+  renderHeader();
+  renderToolbar();
+  renderStatus();
+  renderBoard({ turn: !!(opts && opts.turn) });
+  if (opts && opts.insp === false) { /* the field being typed in keeps its DOM */ }
+  else renderInspector();
+  if (!(opts && opts.quiet) && !isMobile()) renderPages();
+  renderBrowser();
+  renderQuickbar();
+}
+
+/* the history module paints through this, so it never has to import the UI */
 setRenderer(mode => {
   if (mode === 'all') { renderAll(); return; }
-  const opts = (mode && typeof mode === 'object') ? mode : {};
-  renderBoard(!!opts.turn);
-  renderHead();
-  if (opts.insp !== false && !opts.quiet) renderInsp();
-  if (opts.script !== false) syncScript(true);
+  renderAfterEdit(mode && typeof mode === 'object' ? mode : {});
 });
 
-/* published so modules below render can refresh the project list without importing it */
-on('renderProjects', renderProjects);
-on('renderBoard', () => renderBoard(true));
-on('renderHead', renderHead);
-on('renderRows', renderRows);
+/* ── hooks the rest of the app calls ──────────────────────────────────── */
+on('syncChrome', () => {
+  renderHeader();
+  renderToolbar();
+  renderRail();
+  renderInspector();
+  renderCanvas({ keepScroll: true, turn: false });
+  if (APP.workspace === 'script') renderScript();
+  renderStatus();
+  renderNav();
+  renderQuickbar();
+  renderBrowser();
+});
+on('pageChanged', () => { renderBoard({ turn: true }); renderStatus(); if (!isMobile()) renderPages(); });
+on('syncZoom', z => {
+  const btn = $('#status [data-zoom="fit"]');
+  if (btn) {
+    btn.textContent = Math.round(z * 100) + '%';
+    btn.setAttribute('aria-label', `Zoom ${Math.round(z * 100)} percent. Fit page`);
+  }
+});
+on('fitView', animate => fitView(animate));
+on('renderAll', () => renderAll());
+on('refreshAll', () => renderAll());
+on('refreshPages', () => { if (!isMobile()) renderPages(); });
 
-export { addProject, boardTimer, fitSheet, isNarrow, openProject, renderAll, renderBoard, renderHead, renderPages, renderProjects, renderStatus, selectPanel, setPane, syncScript };
-
+export { renderAll, renderBoard, renderChrome, renderNav, renderPages, renderQuickbar, renderStatus };

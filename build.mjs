@@ -93,12 +93,28 @@ for (const file of order) {
     }
     declared.set(name, file);
   }
+  /* `export { a as b }` creates a NEW top-level binding in a real module graph. After flattening it
+     would simply vanish, so any alias is materialised here as `const b = a;`. Missing this once made
+     every mobile sheet button silently dead in the built file while the dev server still worked. */
+  const aliases = [];
+  for (const m of src.matchAll(/export\s*\{([^}]*)\}/g)) {
+    for (const part of m[1].split(',')) {
+      const bits = part.trim().split(/\s+as\s+/);
+      if (bits.length !== 2) continue;
+      const [local, exported] = bits.map(x => x.trim());
+      if (!local || !exported || local === exported) continue;
+      aliases.push(`const ${exported} = ${local};`);
+    }
+  }
   const body = src
     .replace(IMPORT_RE, '')
     .replace(/^\s*export\s*\{[^}]*\}\s*;?\s*$/gm, '')
     .replace(/^export\s+/gm, '')
     .replace(/^\s*\n+/, '');
-  chunks.push(`/* ── ${rel(file).replace('src/', '')} ── */\n${body.trim()}`);
+  /* at the END of the chunk: a source-order `const` alias in front of its target hits the temporal
+     dead zone and takes the whole app down when the file is opened directly */
+  const aliasBlock = aliases.length ? '\n' + aliases.join('\n') : '';
+  chunks.push(`/* ── ${rel(file).replace('src/', '')} ── */\n${body.trim()}${aliasBlock}`);
 }
 
 const js = `(function () {\n'use strict';\n${chunks.join('\n\n')}\n})();`;

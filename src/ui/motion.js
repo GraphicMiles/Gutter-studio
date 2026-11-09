@@ -59,15 +59,18 @@ function initTips(root) {
   const show = el => {
     const text = el.getAttribute('data-tip');
     if (!text) return;
+    /* a tooltip is a hint, never a letterbox over the work: keep it to one line */
     tipEl.textContent = text;
     tipEl.hidden = false;
     tipEl.setAttribute('role', 'tooltip');
     tipEl.classList.add('on');
     const r = el.getBoundingClientRect();
     const t = tipEl.getBoundingClientRect();
-    /* to the right of the rail, or under the control if there is no room */
-    let left = r.right + 8, top = r.top + r.height / 2 - t.height / 2;
-    if (left + t.width > innerWidth - 6) { left = Math.max(6, r.left - t.width - 8); }
+    /* beside the control it describes — to the right, or to the left when the right edge is close */
+    let left = r.right + 8;
+    if (left + t.width > innerWidth - 6) left = Math.max(6, r.left - t.width - 8);
+    let top = r.top + r.height / 2 - t.height / 2;
+    if (top < 6) top = r.bottom + 6;
     top = Math.max(6, Math.min(innerHeight - t.height - 6, top));
     tipEl.style.left = Math.round(left) + 'px';
     tipEl.style.top = Math.round(top) + 'px';
