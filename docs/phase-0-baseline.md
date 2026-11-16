@@ -1,4 +1,4 @@
-# Phase 0 — Repository reconnaissance and feature mapping
+# Phase 0 - Repository reconnaissance and feature mapping
 
 **Baseline commit:** `3fab95f` (GraphicMiles/Gutter-studio), single commit, zero dependencies.
 **Baseline build:** `node build.mjs --check` → **FAILED** at first run
@@ -54,7 +54,7 @@ Limits: 6 cast, 24 pages, 9 panels/page, 4 bubbles/panel, 200 chars text, 80 cha
 
 - One shared `APP` state for desktop and mobile; no second model, no forked renderer.
 - No new framework, router, state or persistence library; bundle stays one file, zero dependencies.
-- The renderer, artwork, prompt format, export writers and history stay as implemented — only their
+- The renderer, artwork, prompt format, export writers and history stay as implemented - only their
   surfaces changed.
 - Presentation split: where a control's wording is described ("Not available in this build"), it
   must be true of the capability, not a mock of it.

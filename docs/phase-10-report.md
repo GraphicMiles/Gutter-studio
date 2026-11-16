@@ -1,4 +1,4 @@
-# Phase 10 — Completion report
+# Phase 10 - Completion report
 
 The interface was erased and rebuilt from scratch against the specification. The renderer, artwork,
 model, AI request format, persistence, exports and history were preserved; every surface above them
@@ -29,7 +29,7 @@ reason shown, cancel honoured), and a first-run card only on a genuinely empty i
 contextual quick-action strip (which also owns the "Tap a panel to place this character · ✕" state),
 five bottom destinations, and one reusable sheet with half/full snaps, drag handle, keyboard-aware
 body. Add, Edit and Script are the desktop browser and inspector rendered into that sheet from the
-same `APP` state — no forked model, no second renderer. Context menus arrive as the same list in the
+same `APP` state - no forked model, no second renderer. Context menus arrive as the same list in the
 sheet, opened by long-press.
 
 **Transients.** One layer stack: dropdowns, popovers, context menus and dialogs all close on Escape
@@ -64,20 +64,20 @@ built bundle's source tree served locally.
 
 **Six required journeys, automated, 40 assertions, all passing:**
 
-- **A — Basic editing:** page select → character select → expression and pose → drag to reposition →
+- **A - Basic editing:** page select → character select → expression and pose → drag to reposition →
   add bubble (caret lands in the field) → type dialogue (appears in the SVG) → change bubble type →
   change page → return → edit survived.
-- **B — Pages:** add → duplicate → drag-reorder (thumbnails prove the new order) → select the moved
+- **B - Pages:** add → duplicate → drag-reorder (thumbnails prove the new order) → select the moved
   page → delete → undo restores it.
-- **C — Script:** open workspace → change the title and dialogue → Apply reports "Applied: 1 page, 4
+- **C - Script:** open workspace → change the title and dialogue → Apply reports "Applied: 1 page, 4
   panels." → project title and board both updated → board renders again on return.
-- **D — AI:** dialog opens, options present; with no provider the control is disabled and the dialog
+- **D - AI:** dialog opens, options present; with no provider the control is disabled and the dialog
   says why. With a stubbed provider: failure → "The connection dropped… Trying once more…" →
   streaming panel counts → validate → success message; Undo restores the previous board.
-- **E — Save and export:** edit shows "Saving…" then "Saved on this device"; all six exports produce
+- **E - Save and export:** edit shows "Saving…" then "Saved on this device"; all six exports produce
   real files (PNG 4.4 MB, SVG 49 KB, PDF 449 KB, zip 4.4 MB, Markdown, JSON). A forced storage
   failure shows "Save failed · Retry" and recovers on Retry.
-- **F — Mobile (390×844, touch):** Pages sheet adds a page → Add places a character on a panel →
+- **F - Mobile (390×844, touch):** Pages sheet adds a page → Add places a character on a panel →
   Edit changes a property → sheet closes → quickbar adds dialogue → Script sheet opens and returns →
   More → export writes a real file → no horizontal overflow → no page errors.
 

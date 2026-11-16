@@ -4,7 +4,7 @@ The reference was measured, not imitated by eye. Playwright loaded the live edit
 then read three things: every transition and animation declaration in the page's stylesheets
 (`/home/user/ultra/motion-css.txt`, 1664 matching rules), the computed transition/animation state of
 every element (`/home/user/ultra/motion-static.json`, 49 distinct declarations), and the live
-animation objects during real interactions — `document.getAnimations()`, keyframes, timings and
+animation objects during real interactions - `document.getAnimations()`, keyframes, timings and
 easings included (`/home/user/ultra/motion-hover.json`). Hover, press and keyboard focus were
 sampled element by element.
 
@@ -21,7 +21,7 @@ Nothing moves. Controls change **fill** (one neutral step), **border** (one step
 Quiet tabs and icon buttons take a `rgba(0,0,0,.05)` wash and one hairline of `rgba(0,0,0,.06)`.
 Durations: 100ms for small swaps, 150ms for colour, border and shadow.
 
-The only hover that adds depth is a small ghost button, which changes to its *open* state — the
+The only hover that adds depth is a small ghost button, which changes to its *open* state - the
 shadow change makes it look like it lifted, but it is the same 150ms state swap.
 
 ### Press
@@ -33,7 +33,7 @@ One pixel, and the shadow collapses to an inset while held. The release rides ba
 normal 180ms `cubic-bezier(.22,1,.36,1)`. The same 70ms figure appears on every skeuomorphic button,
 key and modal control in the product: it is a rule, not a one-off.
 
-### Layers — popovers, menus, export panel
+### Layers - popovers, menus, export panel
 ```
 @keyframes pop-enter     { from{opacity:0;transform:translateY(-4px) scale(.97)} to{…none} }
 @keyframes pop-child     { from{opacity:0;transform:translateY(6px)} to{…none} }
@@ -45,7 +45,7 @@ key and modal control in the product: it is a rule, not a one-off.
 The frame arrives in 200ms; its *contents* arrive after it, one 35ms beat apart, six steps deep, and
 then stop staggering so a long menu never crawls. `transform-origin` is pinned to the corner the
 layer grows from, so a popover under a top-right button expands from its top-right corner. Nothing
-scales beyond .97 — the movement is a settle, not a zoom.
+scales beyond .97 - the movement is a settle, not a zoom.
 
 ### Dialog
 Panel in over 200ms `cubic-bezier(.215,.61,.355,1)` from `translateY(6px) scale(.97)`; scrim fades
@@ -126,8 +126,8 @@ alone).
 2. **No gradients, glass, glows or bevel highlights.** The reference's controls are skeuomorphic:
    top-lit gradients, inset shines, `backdrop-filter`, and an animated conic "beam". Those are
    named in the anti-slop rules as forbidden (gradients, glassmorphism, decorative glow, unnecessary
-   blur, borders as a default crutch). The studio keeps the reference's *geometry* — slab sizes,
-   radii ladder, control heights, type scale — and expresses the same physicality with four flat
+   blur, borders as a default crutch). The studio keeps the reference's *geometry* - slab sizes,
+   radii ladder, control heights, type scale - and expresses the same physicality with four flat
    surface steps instead. No `backdrop-filter` is used anywhere.
 3. **No ambient loops.** A rotate/marquee/flash loop communicates nothing about the user's task and
    costs frames while an artwork canvas is being panned. The workspace has no looping animation at
@@ -135,7 +135,7 @@ alone).
    actually happening, and `motioncheck.py` asserts the idle set is empty.
 4. **The accent is not a state colour.** In the reference orange appears on hover borders, focus
    outlines, slider fills and keyframe buttons. Here it is reserved for the primary action, a switch
-   that is on, the progress fill and status dots — so "orange" always means "this does something" or
+   that is on, the progress fill and status dots - so "orange" always means "this does something" or
    "this is on", never "you hovered".
 5. **Menus exit faster than they enter** (70ms, no child stagger) so dismissal never waits on
    decoration. The reference simply unmounts.
@@ -198,5 +198,5 @@ states, checking for both accent outlines/rings/borders and any non-inset drop s
 (`python3 /home/user/urltest_outline.py` and `urltest_outline2.py`) walks every element in the
 default state, through a 40-stop keyboard focus sweep, across hover on 12 control types, and inside
 the menu, the export dialog, the welcome dialog, the script workspace, the preview, the phone shell
-and both phone sheets — matching computed `outline-color`, `box-shadow`, `background` and every
+and both phone sheets - matching computed `outline-color`, `box-shadow`, `background` and every
 `border-*-color` against the accent values. **0 hits in every state.**

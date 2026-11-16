@@ -7,10 +7,10 @@ histograms and type dumps were read off the live page. The captures and raw meas
 
 Three files carry the system:
 
-- `src/styles/tokens.css` — the values, named for what they do in this product.
-- `src/styles/skin.css` — the surface language: how slabs, controls and floating layers are built
+- `src/styles/tokens.css` - the values, named for what they do in this product.
+- `src/styles/skin.css` - the surface language: how slabs, controls and floating layers are built
   out of those values. Imported after `components.css`.
-- `src/styles/motion.css` — the interaction and transition system, measured from the same reference.
+- `src/styles/motion.css` - the interaction and transition system, measured from the same reference.
   Documented in `docs/motion-study.md`.
 
 Surfaces are flat. The reference's geometry, type scale, radii ladder and control heights are kept;
@@ -32,8 +32,8 @@ top and exactly one soft drop shadow. The page gradient shows between and around
 
 Inside a slab, the same two-material logic repeats at a smaller scale:
 
-- **wells** sink — inputs, slider tracks, segmented grooves (inset shadow, no border)
-- **chips** catch light — buttons, pills, the selected segment (top-lit gradient + 1px edge + drop)
+- **wells** sink - inputs, slider tracks, segmented grooves (inset shadow, no border)
+- **chips** catch light - buttons, pills, the selected segment (top-lit gradient + 1px edge + drop)
 
 One accent, an orange (`#fd631f`), and it is rationed: primary action, slider fill, progress, the
 one "on" state. Everything else is neutral grey on grey. Type is Geist, in four sizes.
@@ -76,35 +76,35 @@ picker tiles · `999` pills only (`.pill`, toggle knob, swatch).
 | centre canvas, recessed | `.canvas` r24, page sheet r24 floating on a groove, page meta under it, zoom in the status line |
 | right properties rail: collapsible sections with uppercase labels, slider rows with numeric fields, PRO tags | `.inspector` r24, sections as `--surface-card` cards, `.row` controls, `.kindtag` where the reference uses a PRO/meta tag |
 | bottom media transport bar | `.pages` strip r24 with thumbnails and its own icon row |
-| Export popover: segmented scope, select, toggles, one orange primary | `.dialog` / export sheet: same anatomy — seg + select + toggles + orange primary, r20 slab, `--sh-dialog` |
+| Export popover: segmented scope, select, toggles, one orange primary | `.dialog` / export sheet: same anatomy - seg + select + toggles + orange primary, r20 slab, `--sh-dialog` |
 | device/template picker cards r32 | welcome tiles r32 |
 
 ## 4. Control states, as built
 
 State is fill and ink. No state in this product is drawn as an orange outline, ring or glow.
 
-- **Button (`.btn`)** — hairline + white fill at rest; hover drops the fill one step; active drops it
+- **Button (`.btn`)** - hairline + white fill at rest; hover drops the fill one step; active drops it
   another and moves 1px down for 70ms; `.btn-primary` is flat accent with a white label.
-- **Icon button (`.iconbtn`, `.tool`)** — 28–34px target; engaged (`aria-pressed`/`aria-expanded`)
+- **Icon button (`.iconbtn`, `.tool`)** - 28–34px target; engaged (`aria-pressed`/`aria-expanded`)
   is a white cell with an ink hairline. The chosen rail tool also carries a 2px ink rule under its
   glyph, so the rail reads at a glance without a colour cue.
-- **Segmented (`.seg`)** — one recess (`--surface-muted`) with a single white cell for the current
+- **Segmented (`.seg`)** - one recess (`--surface-muted`) with a single white cell for the current
   value, separated by its hairline rather than by borders between cells.
-- **Field (`.input`, `.select`)** — white, one hairline; focus turns that hairline to ink and adds an
+- **Field (`.input`, `.select`)** - white, one hairline; focus turns that hairline to ink and adds an
   inner ink rule. No halo.
-- **Toggle** — a recess with a white knob; when on, the track is accent. The knob may overshoot on
+- **Toggle** - a recess with a white knob; when on, the track is accent. The knob may overshoot on
   the spring curve (`cubic-bezier(.34,1.56,.64,1)`, 220ms) because it is landing in a detent.
-- **Slider** — recess track, white thumb that scales to 1.12 on hover and .96 on press (120ms),
+- **Slider** - recess track, white thumb that scales to 1.12 on hover and .96 on press (120ms),
   numeric field to the right, as the reference pairs them.
-- **Swatch** — flat tile; the chosen one is ringed in ink, at a radius that clears its neighbours.
-- **Menu / popover (`.pop`)** — floating card r16, `--sh-menu`, entering over 200ms from
+- **Swatch** - flat tile; the chosen one is ringed in ink, at a radius that clears its neighbours.
+- **Menu / popover (`.pop`)** - floating card r16, `--sh-menu`, entering over 200ms from
   `translateY(-4px) scale(.97)` at its anchor corner; items arrive 35ms apart. A checked item is
   500 weight with a 6px ink dot instead of a tick glyph. Keyboard focus is an inward ink rule.
-- **Dialog** — `--surface-card` slab r24, `--sh-dialog`, scrim is ink at 34% with no blur; on a phone
+- **Dialog** - `--surface-card` slab r24, `--sh-dialog`, scrim is ink at 34% with no blur; on a phone
   it becomes a full-height sheet keeping the top radii only.
-- **Toast / tooltip** — a dark ink pill (`--text-primary`) with white text; tips are for pointers only
+- **Toast / tooltip** - a dark ink pill (`--text-primary`) with white text; tips are for pointers only
   and never carry state the interface does not also show in text.
-- **Focus, everywhere** — a 2px ink rule, 2px outside the box; drawn inwards inside scroll containers
+- **Focus, everywhere** - a 2px ink rule, 2px outside the box; drawn inwards inside scroll containers
   so it is never clipped; inverted to white on the dark ink surfaces. A layer opened by a touch or a
   click puts focus on the layer itself (so a screen reader reads it) without ringing any item; opened
   by the keyboard, the first item takes focus so Arrow keys and Enter work immediately.
